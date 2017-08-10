@@ -20,6 +20,7 @@
 // system include files
 #include <memory>
 #include <cmath>
+#include <string> /*Usig of strigs*/
 
 // user include files
 /*
@@ -130,13 +131,28 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    std::cout << "\n == TRIGGER PATHS= " << std::endl;
-   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
-     std::cout << "Trigger " << names.triggerName(i) <<
-       ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
-       ": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)")
-	       << std::endl;
-   }
- 
+   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
+
+     /*Cut the version*/
+     //Find last occurrence of content in string
+     size_t start_position_to_erase = names.triggerName(i).rfind("_v");
+     //erase from start_position_to_erase 4 positions or the end
+     std::string TriggerNameVersionOff = names.triggerName(i).erase(start_position_to_erase, 4); 
+     if( TriggerNameVersionOff == "Trigger HLT_PFMET110_PFMHT110_IDTight" ) {
+
+       std::cout << "Trigger " << names.triggerName(i) <<
+	 ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
+	 ": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)")
+		 << std::endl;
+       
+       
+       
+     }//Endif
+
+     
+     
+   }//End for
+   
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
