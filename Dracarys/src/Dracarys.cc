@@ -21,6 +21,7 @@
 #include <memory>
 #include <cmath>
 #include <string> /*Usig of strigs*/
+#include <iostream>
 
 // user include files
 /*
@@ -118,7 +119,10 @@ void
 Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
+   
+   //Counters
+   int c1;
+   
    //Trigger
    edm::Handle<edm::TriggerResults> triggerBits;
    edm::Handle<pat::TriggerObjectStandAlone> triggerObjects;
@@ -130,28 +134,33 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ////////////////////////////
 
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
-   std::cout << "\n == TRIGGER PATHS= " << std::endl;
+   //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
 
-     /*Cut the version*/
-     //Find last occurrence of content in string
-     size_t start_position_to_erase = names.triggerName(i).rfind("_v");
-     //erase from start_position_to_erase to the end
-     std::string TriggerNameVersionOff = names.triggerName(i).erase(start_position_to_erase,names.triggerName(i).end()); 
-     if( TriggerNameVersionOff == "Trigger HLT_PFMET110_PFMHT110_IDTight" ) {
+     /*Cut the version of the trigger path*/
+     std::string nameV = names.triggerName(i);
+     std::string version ="_v";
+     size_t start_pos = nameV.rfind(version);
+     std::string TriggerNameVersionOff;
+     if (start_pos != std::string::npos){
+       TriggerNameVersionOff= nameV.erase(start_pos, version.length()+4);
+     } 
+     
+     /*End cut de version*/
+     
+     /*See if path pass*/
+     std::string TriggerWanted="HLT_PFMET110_PFMHT110_IDTight";
 
-       std::cout << "Trigger " << names.triggerName(i) <<
-	 ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
-	 ": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)")
-		 << std::endl;
-       
-       
-       
-     }//Endif
-
+     if( TriggerNameVersionOff ==  TriggerWanted ) {
+       if(triggerBits->accept(i)){
+	 //std::cout << "PASS" << std::endl;
+	 c1++;
+       }
+     }
+     /*end See if path pass*/  
      
      
-   }//End for
+   }
    
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
