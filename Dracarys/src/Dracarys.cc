@@ -137,7 +137,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //Find last occurrence of content in string
      size_t start_position_to_erase = names.triggerName(i).rfind("_v");
      //erase from start_position_to_erase to the end
-     std::string TriggerNameVersionOff = names.triggerName(i).erase(start_position_to_erase, string::npos ); 
+     std::string TriggerNameVersionOff = names.triggerName(i).erase(start_position_to_erase,names.triggerName(i).end()); 
      if( TriggerNameVersionOff == "Trigger HLT_PFMET110_PFMHT110_IDTight" ) {
 
        std::cout << "Trigger " << names.triggerName(i) <<
