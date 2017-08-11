@@ -21,60 +21,19 @@
 #include <memory>
 #include <cmath>
 #include <string> /*Usig of strigs*/
-#include <iostream>
 
 // user include files
-/*
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
-*/
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "VLF_ANA/Dracarys/interface/Dracarys.h"
+
 //
 //User defined
 //
-
-#include "VLF_ANA/Dracarys/interface/Dracarys.h"
 
 //
 // class declaration
 //
 
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
-/*
-class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
-   public:
-      explicit Dracarys(const edm::ParameterSet&);
-      ~Dracarys();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      // ----------member data ---------------------------
-
-      edm::EDGetTokenT triggerBits_;
-      edm::EDGetTokenT triggerObjects_;
-      edm::EDGetTokenT triggerPrescales_;
-};
-*/
 //
 // constants, enums and typedefs
 //
@@ -86,27 +45,26 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 //
 // constructors and destructor
 //
-Dracarys::Dracarys(const edm::ParameterSet& iConfig):
-  triggerBits_ (consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
-  triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
-  triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales")))
-//{
-//triggerBits_ = iCC.consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
-  //triggerObjects_ = consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter("objects"));
-  //  triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter("prescales")))
-{
-   //now do what ever initialization is needed
-   usesResource("TFileService");
-
+Dracarys::Dracarys(const edm::ParameterSet& iConfig){
+  //now do what ever initialization is needed
+  usesResource("TFileService");  
+  //Change the inicializator to the estandars
+  /*Muons*/
+  tok_muons_=consumes< pat::Muon>(iConfig.getParameter<edm::InputTag>("obmuon"));
+  
+  /*Trigger*/
+  triggerBits_ =consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
+  triggerObjects_=consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"));
+  triggerPrescales_=consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"));
 }
 
 
 Dracarys::~Dracarys()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  
 }
 
 
@@ -120,17 +78,18 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   //Counters
-   int c1;
-   
+ 
    //Trigger
    edm::Handle<edm::TriggerResults> triggerBits;
    edm::Handle<pat::TriggerObjectStandAlone> triggerObjects;
    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+   edm::Handle<pat::Muon>muonObjets;
    
    iEvent.getByToken(triggerBits_, triggerBits);
    iEvent.getByToken(triggerObjects_, triggerObjects);
    iEvent.getByToken(triggerPrescales_, triggerPrescales);
+   iEvent.getByToken(tok_muons_, muonObjets);
+
    ////////////////////////////
 
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
@@ -153,8 +112,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      if( TriggerNameVersionOff ==  TriggerWanted ) {
        if(triggerBits->accept(i)){
-	 //std::cout << "PASS" << std::endl;
-	 c1++;
+	 std::cout << "PASS" << std::endl;
        }
      }
      /*end See if path pass*/  
@@ -178,12 +136,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Dracarys::beginJob()
 {
+ 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 Dracarys::endJob() 
 {
+
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
