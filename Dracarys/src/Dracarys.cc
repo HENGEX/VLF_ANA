@@ -26,32 +26,18 @@
 
 #include "VLF_ANA/Dracarys/interface/Dracarys.h"
 
-//
-//User defined
-//
-
-//
-// class declaration
-//
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 Dracarys::Dracarys(const edm::ParameterSet& iConfig){
   //now do what ever initialization is needed
+  
   usesResource("TFileService");  
-  //Change the inicializator to the estandars
+  
   /*Muons*/
   tok_muons_=consumes< pat::Muon>(iConfig.getParameter<edm::InputTag>("obmuon"));
   
+  /*Jets*/
+  tok_jets_=consumes< pat::Jet>(iConfig.getParameter<edm::InputTag>("objet"));
+  /*MET*/
+  tok_met_=consumes< pat::MET>(iConfig.getParameter<edm::InputTag>("obmet"));
   /*Trigger*/
   triggerBits_ =consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
   triggerObjects_=consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"));
@@ -120,15 +106,6 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
    }
    
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 

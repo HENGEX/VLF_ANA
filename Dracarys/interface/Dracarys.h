@@ -27,7 +27,6 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
-  
  private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -42,6 +41,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   /**/
   edm::EDGetTokenT< pat::Muon > tok_muons_;
-  //const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+  edm::EDGetTokenT<pat::Jet> tok_jets_;
+  edm::EDGetTokenT<pat::MET> tok_met_;
   
   };
