@@ -26,22 +26,16 @@
 
 #include "VLF_ANA/Dracarys/interface/Dracarys.h"
 
-Dracarys::Dracarys(const edm::ParameterSet& iConfig){
+Dracarys::Dracarys(const edm::ParameterSet& iConfig):
+  triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
+  triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
+  triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
+  tok_jets_(consumes<pat::Jet>(iConfig.getParameter<edm::InputTag>("objet"))),
+  tok_met_(consumes<pat::MET>(iConfig.getParameter<edm::InputTag>("obmet"))),
+  tok_muons_(consumes<pat::Muon>(iConfig.getParameter<edm::InputTag>("obmuon")))
+{
   //now do what ever initialization is needed
-  
   usesResource("TFileService");  
-  
-  /*Muons*/
-  tok_muons_=consumes< pat::Muon>(iConfig.getParameter<edm::InputTag>("obmuon"));
-  
-  /*Jets*/
-  tok_jets_=consumes< pat::Jet>(iConfig.getParameter<edm::InputTag>("objet"));
-  /*MET*/
-  tok_met_=consumes< pat::MET>(iConfig.getParameter<edm::InputTag>("obmet"));
-  /*Trigger*/
-  triggerBits_ =consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
-  triggerObjects_=consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"));
-  triggerPrescales_=consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"));
 }
 
 
@@ -69,11 +63,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::TriggerResults> triggerBits;
    edm::Handle<pat::TriggerObjectStandAlone> triggerObjects;
    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-   edm::Handle<pat::Muon>muonObjets;
-   
+
    iEvent.getByToken(triggerBits_, triggerBits);
    iEvent.getByToken(triggerObjects_, triggerObjects);
    iEvent.getByToken(triggerPrescales_, triggerPrescales);
+   
+
+   /*Handling Muons*/
+   edm::Handle<pat::Muon> muonObjets;
    iEvent.getByToken(tok_muons_, muonObjets);
 
    ////////////////////////////
@@ -99,6 +96,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( TriggerNameVersionOff ==  TriggerWanted ) {
        if(triggerBits->accept(i)){
 	 std::cout << "PASS" << std::endl;
+	 
        }
      }
      /*end See if path pass*/  

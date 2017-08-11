@@ -40,8 +40,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<pat::TriggerObjectStandAlone> triggerObjects_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   /**/
-  edm::EDGetTokenT< pat::Muon > tok_muons_;
   edm::EDGetTokenT<pat::Jet> tok_jets_;
   edm::EDGetTokenT<pat::MET> tok_met_;
-  
+  edm::EDGetTokenT< pat::Muon > tok_muons_;
   };
