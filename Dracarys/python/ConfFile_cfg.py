@@ -18,6 +18,8 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               prescales = cms.InputTag("patTrigger"),
                               objects = cms.InputTag("selectedPatTrigger"),
                               obmuon=cms.InputTag("slimmedMuons"),
+                              objet=cms.InputTag("slimmedJets"),
+                              obmet=cms.InputTag("slimmedMETs"),
                               
                               )
 
