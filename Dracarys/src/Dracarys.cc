@@ -70,8 +70,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 
    /*Handling Muons*/
-   edm::Handle<edm::View<pat::Muon> > muonObjets;
-   iEvent.getByToken(tok_muons_, muonObjets);
+   edm::Handle<edm::View<pat::Muon> > muons;
+   iEvent.getByToken(tok_muons_, muons);
+   /*Handling Jets*/
+   edm::Handle<edm::View<pat::Jet> > jets;
+   iEvent.getByToken(tok_jets_,jets);
+   /*Handling MET*/   
+   edm::Handle<edm::View<pat::MET> > mets;
+   iEvent.getByToken(tok_met_,mets);
 
    ////////////////////////////
 
@@ -97,9 +103,13 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(triggerBits->accept(i)){
 	 std::cout << "PASS" << std::endl;
 	 
-	 std::cout <<"Number of muons: " << muonObjets->size() <<std::endl;
-
-
+	 std::cout <<"Number of muons: " << muons->size() <<std::endl;
+	 std::cout <<"Number of jets: " << jets->size() <<std::endl;
+	 if(mets->empty()){
+	   std::cout <<"METs: 0" <<std::endl;
+	 }else{
+	   std::cout <<"METs: " << (*mets)[0].et() <<std::endl;
+	 }
        }
      }
      /*end See if path pass*/  
