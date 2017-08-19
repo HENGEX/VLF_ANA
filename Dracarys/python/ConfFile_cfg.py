@@ -22,6 +22,10 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               obmet=cms.InputTag("slimmedMETs"),
                               
                               )
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root"),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
 
 
 process.p = cms.Path(process.demo)

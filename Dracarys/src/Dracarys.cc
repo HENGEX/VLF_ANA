@@ -32,7 +32,8 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
   tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
-  tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
+  tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon"))),
+  histContainer_()
 {
   //now do what ever initialization is needed
   usesResource("TFileService");  
@@ -110,6 +111,10 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }else{
 	   std::cout <<"METs: " << (*mets)[0].et() <<std::endl;
 	 }
+
+	 histContainer_["muons"]->Fill(muons->size() );
+	 histContainer_["jets" ]->Fill(jets->size()  );
+	 histContainer_["met"  ]->Fill(mets->empty() ? 0 : (*mets)[0].et());
        }
      }
      /*end See if path pass*/  
@@ -124,8 +129,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Dracarys::beginJob()
 {
+  // register to the TFileService
+  edm::Service<TFileService> fs;
+  
   // book histograms:
-  // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
+  histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
+  histContainer_["jets"   ]=fs->make<TH1F>("jets",    "jet multiplicity",      10, 0,  10);
+  histContainer_["met"    ]=fs->make<TH1F>("met",     "missing E_{T}",         20, 0, 100);
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
