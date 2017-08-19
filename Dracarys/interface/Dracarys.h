@@ -10,6 +10,7 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -22,8 +23,13 @@ using namespace edm;
 
 class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
  public:
+  /// Constructor
   explicit Dracarys(const edm::ParameterSet&);
+
+  /// Destructor
   ~Dracarys();
+  
+  // Operations
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -40,7 +46,15 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<pat::TriggerObjectStandAlone> triggerObjects_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   /**/
-  edm::EDGetTokenT<pat::Jet> tok_jets_;
-  edm::EDGetTokenT<pat::MET> tok_met_;
-  edm::EDGetTokenT< pat::Muon > tok_muons_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > tok_jets_;
+  edm::EDGetTokenT<edm::View<pat::MET> >  tok_met_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > tok_muons_;
+ 
+
+  
+
+  /// histograms
+  std::map<std::string,TH1F*> histContainer_;
+
+
   };

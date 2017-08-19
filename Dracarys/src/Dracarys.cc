@@ -30,9 +30,9 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
   triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
-  tok_jets_(consumes<pat::Jet>(iConfig.getParameter<edm::InputTag>("objet"))),
-  tok_met_(consumes<pat::MET>(iConfig.getParameter<edm::InputTag>("obmet"))),
-  tok_muons_(consumes<pat::Muon>(iConfig.getParameter<edm::InputTag>("obmuon")))
+  tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
+  tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
+  tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
 {
   //now do what ever initialization is needed
   usesResource("TFileService");  
@@ -70,7 +70,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 
    /*Handling Muons*/
-   edm::Handle<pat::Muon> muonObjets;
+   edm::Handle<edm::View<pat::Muon> > muonObjets;
    iEvent.getByToken(tok_muons_, muonObjets);
 
    ////////////////////////////
@@ -97,6 +97,9 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(triggerBits->accept(i)){
 	 std::cout << "PASS" << std::endl;
 	 
+	 std::cout <<"Number of muons: " << muonObjets->size() <<std::endl;
+
+
        }
      }
      /*end See if path pass*/  
@@ -111,7 +114,8 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Dracarys::beginJob()
 {
- 
+  // book histograms:
+  // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
