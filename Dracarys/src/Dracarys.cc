@@ -135,7 +135,7 @@ Dracarys::beginJob()
   // book histograms:
   histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
   histContainer_["jets"   ]=fs->make<TH1F>("jets",    "jet multiplicity",      10, 0,  10);
-  histContainer_["met"    ]=fs->make<TH1F>("met",     "missing E_{T}",         20, 0, 100);
+  histContainer_["met"    ]=fs->make<TH1F>("met",     "missing E_{T}",         20, 0, 500);
 
 }
 
