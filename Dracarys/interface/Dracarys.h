@@ -17,6 +17,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -28,10 +29,14 @@
 using namespace std;
 using namespace edm;
 
+#ifndef DRACARYS_H
+#define DRACARYS_H
+
 class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
  public:
   /// Constructor
   explicit Dracarys(const edm::ParameterSet&);
+ 
 
   /// Destructor
   ~Dracarys();
@@ -40,7 +45,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
- private:
+
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -59,6 +64,11 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
  
   /// histograms
   std::map<std::string,TH1F*> histContainer_;
-
+  //Counters
+  static int NoCuts; 
+  static int TriggerPathCut;
+  static int aJetatLessCut;
+  static int LeadingMuPtM3;
 
   };
+#endif
