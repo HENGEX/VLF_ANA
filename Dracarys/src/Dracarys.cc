@@ -158,7 +158,7 @@ void
 Dracarys::beginJob()
 {
   // register to the TFileService
-  //  edm::Service<TFileService> fs;
+  edm::Service<TFileService> fs;
   
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
