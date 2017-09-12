@@ -38,17 +38,21 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
   tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
-  tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon"))),
-  histContainer_()
+  tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
+  //,histContainer_()
 {
   //now do what ever initialization is needed
-  usesResource("TFileService");  
+  usesResource("TFileService"); 
+  // register to the TFileService
+  edm::Service<TFileService> fs;
+  //Create a TTree
+  tree_ = fs->make<TTree>("VLFTree","VLFTree");
 }
 
 
 Dracarys::~Dracarys()
 {
-  
+  //delete tree_;
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   
@@ -85,12 +89,21 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /*Handling MET*/   
    edm::Handle<edm::View<pat::MET> > mets;
    iEvent.getByToken(tok_met_,mets);
+   const pat::MET &met = mets->front();
 
    ////////////////////////////
 
    //Cunting events
    Dracarys::NoCuts++;
 
+   // Branches
+   std::vector<XYZTLorentzVector> Bmuons;
+
+   //Tree Structure
+
+   tree_->Branch("Muons",&Bmuons);
+   
+   
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
@@ -136,7 +149,29 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  	     
  	     if ( flagLeadingMuPtM3 ){
 	       Dracarys::LeadingMuPtM3++;
-	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
+	       //	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
+
+	       //TTree Filling
+	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+		 XYZTLorentzVector mu(muon->pt(), muon->eta(), muon->phi(), muon->energy());
+		 std::cout <<"Muon Pt: " << mu.E() <<std::endl;
+		 Bmuons.push_back(mu);
+	       }
+
+	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+		 XYZTLorentzVector je(jet->pt(), jet->eta(), jet->phi(), jet->energy());
+		 std::cout <<"Jet Pt: " << je.Px() <<std::endl;
+		 // event.Jets.push_back(je);
+	       }
+	       
+	       //Bmet.Et = met.pt();
+	       //Bmet.Phi= 0;
+	       //	       eventID. = ;
+	       //	       eventID. = ;
+	       
+	       tree_->Fill();
+	       Bmuons.clear();
+	       
 // 	       histContainer_["muons"]->Fill(muons->size() );
 // 	       histContainer_["jets" ]->Fill(jets->size()  );
 // 	       histContainer_["met"  ]->Fill(mets->empty() ? 0 : (*mets)[0].et());
@@ -157,9 +192,8 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Dracarys::beginJob()
 {
-  // register to the TFileService
-  edm::Service<TFileService> fs;
-  
+ 
+
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
   // histContainer_["jets"   ]=fs->make<TH1F>("jets",    "jet multiplicity",      10, 0,  10);

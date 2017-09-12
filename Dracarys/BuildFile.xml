@@ -8,7 +8,7 @@
 <use   name="FWCore/MessageService"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="PhysicsTools/FWLite"/>
-<use   name= "CommonTools/UtilAlgos"/>
-
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/Math"/>
 
 <flags EDM_PLUGIN="1"/>
