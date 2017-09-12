@@ -17,21 +17,30 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-
+#include "TTree.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <TBranch.h>
+#include <vector>
 
 using namespace std;
 using namespace edm;
+using namespace math;
+
+#ifndef DRACARYS_H
+#define DRACARYS_H
+
 
 class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
  public:
   /// Constructor
   explicit Dracarys(const edm::ParameterSet&);
+ 
 
   /// Destructor
   ~Dracarys();
@@ -40,7 +49,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
- private:
+
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -58,7 +67,14 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<edm::View<pat::Muon> > tok_muons_;
  
   /// histograms
-  std::map<std::string,TH1F*> histContainer_;
-
+  //  std::map<std::string,TH1F*> histContainer_;
+  //Counters
+  static int NoCuts; 
+  static int TriggerPathCut;
+  static int aJetatLessCut;
+  static int LeadingMuPtM3;
+  // TTree
+  TTree* tree_;
 
   };
+#endif
