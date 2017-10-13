@@ -74,6 +74,12 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   static int TriggerPathCut;
   static int aJetatLessCut;
   static int LeadingMuPtM3;
+  //Cuts
+  double MinMuonPt_;
+  double MuonIso_;
+  int MuonID_;
+  int MinNMuons_;
+  int MaxNMuons_;
   // TTree
   TTree* tree_;
 

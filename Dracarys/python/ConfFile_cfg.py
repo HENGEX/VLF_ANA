@@ -24,6 +24,12 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               obmuon=cms.InputTag("slimmedMuons"),
                               objet=cms.InputTag("slimmedJets"),
                               obmet=cms.InputTag("slimmedMETs"),
+                              #Cuts
+                              MinMuonPt = cms.double(3.0), #Min muon pt - for all muons -
+                              MuonIso = cms.double(0.15), #Combined isolation with delta beta PU corrections
+                              MuonID = cms.int32(1), #0: Loose, 1: Medium, 2: Tight
+                              MinNMuons = cms.int32(1), #Minimal number of muons following our definition
+                              MaxNMuons = cms.int32(999), #Maximum number of muons following our defintiion
                               
                               )
 process.TFileService = cms.Service("TFileService",

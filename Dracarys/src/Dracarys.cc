@@ -45,6 +45,12 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   usesResource("TFileService"); 
   // register to the TFileService
   edm::Service<TFileService> fs;
+  //Cuts
+  MinMuonPt_ = (iConfig.getParameter<double>("MinMuonPt"));
+  MuonIso_ = (iConfig.getParameter<double>("MuonIso"));
+  MuonID_ = (iConfig.getParameter<int>("MuonID"));
+  MinNMuons_ = (iConfig.getParameter<int>("MinNMuons"));
+  MaxNMuons_ = (iConfig.getParameter<int>("MaxNMuons"));
   //Create a TTree
   tree_ = fs->make<TTree>("VLFTree","VLFTree");
 }
@@ -150,19 +156,27 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     // loop muon collection and fill histograms
 	     /* at less a muon Pt>3 GeV*/
 	     
-	     bool flagLeadingMuPtM3=false;
+	     bool flagMuonChooser=false;
+	     int OurMuonDefinitionCounter=0;
+	     std::cout << "Muon counter loop" << std::endl;
 	     for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 	       double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
-	       if( (muon->pt() > 3) && (MuonIso < 0.15) && (muon->isMediumMuon()))
-		 flagLeadingMuPtM3=true;
+	       if( (muon->pt() > MinMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
+		 {
+		   if ( ((MuonID_==0) && (muon->isLooseMuon())) || ((MuonID_==1) && (muon->isMediumMuon())) ) OurMuonDefinitionCounter++;
+		   std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
+		 }
 	     }
+
+	     int Muon_size=muons->size();
+	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_) && (Muon_size<=MinNMuons_)) flagMuonChooser=true;
  	     
- 	     if ( flagLeadingMuPtM3 ){
+ 	     if ( flagMuonChooser ){
 	       Dracarys::LeadingMuPtM3++;
 	       //	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
 
 	       //TTree Filling
-	       NMuons=muons->size();
+	       NMuons=OurMuonDefinitionCounter;
 	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 		 XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
 		 std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
