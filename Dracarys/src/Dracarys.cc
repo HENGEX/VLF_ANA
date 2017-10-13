@@ -98,10 +98,17 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Branches
    std::vector<XYZTLorentzVector> Bmuons;
+   std::vector<double> Muon_charge, Combined_Iso;
+   std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
 
-   //Tree Structure
+   //Tree Structure -> branches should be declared in decreasing size
 
    tree_->Branch("Muons",&Bmuons);
+   tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
+   tree_->Branch("Muon_charge",&Muon_charge);
+   tree_->Branch("MuonLooseID",&Muon_loose);
+   tree_->Branch("MuonMediumID",&Muon_medium);
+   //tree_->Branch("MuonTightID",&Muon_tight);
    
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
@@ -143,7 +150,8 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     
 	     bool flagLeadingMuPtM3=false;
 	     for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-	       if( muon->pt() > 3 )
+	       double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
+	       if( (muon->pt() > 3) && (MuonIso < 0.15) && (muon->isMediumMuon()))
 		 flagLeadingMuPtM3=true;
 	     }
  	     
@@ -156,6 +164,11 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 XYZTLorentzVector mu(muon->pt(), muon->eta(), muon->phi(), muon->energy());
 		 std::cout <<"Muon Pt: " << mu.E() <<std::endl;
 		 Bmuons.push_back(mu);
+		 Muon_charge.push_back(muon->charge());
+		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
+		 Muon_loose.push_back(muon->isLooseMuon()); 
+		 Muon_medium.push_back(muon->isMediumMuon()); 
+		 //Muon_tight.push_back(muon->);
 	       }
 
 	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
