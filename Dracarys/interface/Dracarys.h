@@ -26,6 +26,7 @@
 #include "TTree.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <TBranch.h>
+#include <TLorentzVector.h>
 #include <vector>
 
 using namespace std;

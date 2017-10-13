@@ -100,6 +100,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<XYZTLorentzVector> Bmuons;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
+   int NMuons;
 
    //Tree Structure -> branches should be declared in decreasing size
 
@@ -109,6 +110,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_->Branch("MuonLooseID",&Muon_loose);
    tree_->Branch("MuonMediumID",&Muon_medium);
    //tree_->Branch("MuonTightID",&Muon_tight);
+   tree_->Branch("MuonMultiplicity",&NMuons);
    
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
@@ -160,9 +162,10 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       //	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
 
 	       //TTree Filling
+	       NMuons=muons->size();
 	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-		 XYZTLorentzVector mu(muon->pt(), muon->eta(), muon->phi(), muon->energy());
-		 std::cout <<"Muon Pt: " << mu.E() <<std::endl;
+		 XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
+		 std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
 		 Bmuons.push_back(mu);
 		 Muon_charge.push_back(muon->charge());
 		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
