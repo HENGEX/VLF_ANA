@@ -20,7 +20,7 @@
 // system include files
 #include <memory>
 #include <cmath>
-#include <string> /*Usig of strigs*/
+#include <string> /*Using of strigs*/
 
 // user include files
 
@@ -36,6 +36,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
   triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
+  tok_vertex_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
   tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
   tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
@@ -85,6 +86,9 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(triggerObjects_, triggerObjects);
    iEvent.getByToken(triggerPrescales_, triggerPrescales);
    
+   //Vertex info
+   edm::Handle<reco::VertexCollection> vertices;
+   iEvent.getByToken(tok_vertex_, vertices);
 
    /*Handling Muons*/
    edm::Handle<edm::View<pat::Muon> > muons;
@@ -103,14 +107,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Dracarys::NoCuts++;
 
    // Branches
-   std::vector<XYZTLorentzVector> Bmuons;
+   std::vector<XYZTLorentzVector> AnaMuons;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
    int NMuons;
 
    //Tree Structure -> branches should be declared in decreasing size
 
-   tree_->Branch("Muons",&Bmuons);
+   tree_->Branch("AnaMuons",&AnaMuons);
    tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
    tree_->Branch("Muon_charge",&Muon_charge);
    tree_->Branch("MuonLooseID",&Muon_loose);
@@ -169,7 +173,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     }
 
 	     int Muon_size=muons->size();
-	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_) && (Muon_size<=MinNMuons_)) flagMuonChooser=true;
+	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_) && (Muon_size==OurMuonDefinitionCounter)) flagMuonChooser=true;
  	     
  	     if ( flagMuonChooser ){
 	       Dracarys::LeadingMuPtM3++;
@@ -180,7 +184,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 		 XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
 		 std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
-		 Bmuons.push_back(mu);
+		 AnaMuons.push_back(mu);
 		 Muon_charge.push_back(muon->charge());
 		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
 		 Muon_loose.push_back(muon->isLooseMuon()); 
@@ -200,7 +204,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       //	       eventID. = ;
 	       
 	       tree_->Fill();
-	       Bmuons.clear();
+	       AnaMuons.clear();
 	       
 // 	       histContainer_["muons"]->Fill(muons->size() );
 // 	       histContainer_["jets" ]->Fill(jets->size()  );

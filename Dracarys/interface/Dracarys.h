@@ -16,6 +16,8 @@
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -63,6 +65,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<pat::TriggerObjectStandAlone> triggerObjects_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   /**/
+  edm::EDGetTokenT<reco::VertexCollection> tok_vertex_;
   edm::EDGetTokenT<edm::View<pat::Jet> > tok_jets_;
   edm::EDGetTokenT<edm::View<pat::MET> >  tok_met_;
   edm::EDGetTokenT<edm::View<pat::Muon> > tok_muons_;
