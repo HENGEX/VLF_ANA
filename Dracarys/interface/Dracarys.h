@@ -87,6 +87,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   double Pvtx_vtx_max_;
   double Pvtx_vtxdxy_max_;
   double MinMuonPt_;
+  double MaxMuonPt_;
   double MuonIso_;
   int MuonID_;
   int MinNMuons_;

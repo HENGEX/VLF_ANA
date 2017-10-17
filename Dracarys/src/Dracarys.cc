@@ -55,6 +55,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   Pvtx_vtx_max_ = (iConfig.getParameter<double>("Pvtx_vtx_max"));
   Pvtx_vtxdxy_max_ = (iConfig.getParameter<double>("Pvtx_vtxdxy_max"));
   MinMuonPt_ = (iConfig.getParameter<double>("MinMuonPt"));
+  MaxMuonPt_ = (iConfig.getParameter<double>("MaxMuonPt"));
   MuonIso_ = (iConfig.getParameter<double>("MuonIso"));
   MuonID_ = (iConfig.getParameter<int>("MuonID"));
   MinNMuons_ = (iConfig.getParameter<int>("MinNMuons"));
@@ -127,7 +128,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_->Branch("Muon_charge",&Muon_charge);
    tree_->Branch("MuonLooseID",&Muon_loose);
    tree_->Branch("MuonMediumID",&Muon_medium);
-   //tree_->Branch("MuonTightID",&Muon_tight);
+   tree_->Branch("MuonTightID",&Muon_tight);
    tree_->Branch("MuonMultiplicity",&NMuons);
    tree_->Branch("Vertices",&Nvertices);
    tree_->Branch("InTimePU",&NObservedInTimePUVertices);
@@ -169,12 +170,14 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 bool flagGoodVertex = false;
 
 	 Nvertices=0;
+	 reco::VertexCollection::const_iterator firstGoodVertex = vertices->end();
 	 for(reco::VertexCollection::const_iterator vtxIt = vertices->begin(); vtxIt!= vertices->end(); ++vtxIt) {
 	   if((vtxIt->isValid()) && !(vtxIt->isFake())) {
 	     if(vtxIt->ndof() < Pvtx_ndof_min_) continue; 
 	     if(abs(vtxIt->z()) >= Pvtx_vtx_max_) continue;
 	     if(sqrt((vtxIt->x()*vtxIt->x()) + (vtxIt->y()*vtxIt->y())) >= Pvtx_vtxdxy_max_) continue; 
 	     flagGoodVertex=true;
+	     if (Nvertices==0) firstGoodVertex = vtxIt;
 	     Nvertices++;
 	   }
 	 }
@@ -207,7 +210,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     std::cout << "Muon counter loop" << std::endl;
 	     for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 	       double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
-	       if( (muon->pt() > MinMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
+	       if( (muon->pt() > MinMuonPt_) && (muon->pt() < MaxMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
 		 {
 		   if ( ((MuonID_==0) && (muon->isLooseMuon())) || ((MuonID_==1) && (muon->isMediumMuon())) ) OurMuonDefinitionCounter++;
 		   std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
@@ -231,7 +234,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
 		 Muon_loose.push_back(muon->isLooseMuon()); 
 		 Muon_medium.push_back(muon->isMediumMuon()); 
-		 //Muon_tight.push_back(muon->);
+		 Muon_tight.push_back(muon->isTightMuon(*firstGoodVertex));
 	       }
 
 	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
