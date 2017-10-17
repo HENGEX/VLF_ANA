@@ -27,12 +27,14 @@
 #include "VLF_ANA/Dracarys/interface/Dracarys.h"
 
 // Counters
-int Dracarys::NoCuts; 
+int Dracarys::NoCuts;
 int Dracarys::TriggerPathCut;
 int Dracarys::GoodVertex;
 int Dracarys::aJetatLessCut;
 int Dracarys::LeadingMuPtM3;
 int Dracarys::MissingETCut;
+int Dracarys::BasicJetsCut;
+int Dracarys::bJetsCut;
 
 Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
@@ -51,6 +53,8 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   edm::Service<TFileService> fs;
   //Is Data Boolean
   is_data_ = (iConfig.getParameter<bool>("is_data"));
+  //Debugging option
+  debug_ = (iConfig.getParameter<bool>("debug"));
   //Cuts
   Pvtx_ndof_min_ = (iConfig.getParameter<int>("Pvtx_ndof_min"));
   Pvtx_vtx_max_ = (iConfig.getParameter<double>("Pvtx_vtx_max"));
@@ -62,6 +66,15 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   MinNMuons_ = (iConfig.getParameter<int>("MinNMuons"));
   MaxNMuons_ = (iConfig.getParameter<int>("MaxNMuons"));
   MinMET_ = (iConfig.getParameter<double>("MinMET"));
+  MinJetPt_ = (iConfig.getParameter<double>("MinJetPt"));
+  MaxJetEta_ = (iConfig.getParameter<double>("MaxJetEta"));
+  MinNJets_ = (iConfig.getParameter<int>("MinNJets"));
+  MaxNJets_ = (iConfig.getParameter<int>("MaxNJets"));
+  bJetTag_ = (iConfig.getParameter<double>("bJetTag"));
+  MinbJetPt_ = (iConfig.getParameter<double>("MinbJetPt"));
+  MaxbJetEta_ = (iConfig.getParameter<double>("MaxbJetEta"));
+  MinNbJets_ = (iConfig.getParameter<int>("MinNbJets"));
+  MaxNbJets_ = (iConfig.getParameter<int>("MaxNbJets"));
   //Create a TTree
   tree_ = fs->make<TTree>("VLFTree","VLFTree");
 }
@@ -118,21 +131,28 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Branches
    std::vector<XYZTLorentzVector> AnaMuons;
+   std::vector<XYZTLorentzVector> AnaJets;
    XYZTLorentzVector MET;
    int Nvertices, NObservedInTimePUVertices, NTruePUInteractions;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
+   std::vector<double> bJetDiscriminator;
    int NMuons;
+   int NJets, NbJets;
 
    //Tree Structure -> branches should be declared in decreasing size
    tree_->Branch("AnaMuons",&AnaMuons);
+   tree_->Branch("AnaJets",&AnaJets);
    tree_->Branch("AnaMET",&MET);
+   tree_->Branch("combinedSecondaryVertexbJetDiscriminator",&bJetDiscriminator);
    tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
    tree_->Branch("Muon_charge",&Muon_charge);
    tree_->Branch("MuonLooseID",&Muon_loose);
    tree_->Branch("MuonMediumID",&Muon_medium);
    tree_->Branch("MuonTightID",&Muon_tight);
    tree_->Branch("MuonMultiplicity",&NMuons);
+   tree_->Branch("JetsMultiplicity",&NJets);
+   tree_->Branch("bJetsMultiplicity",&NbJets);
    tree_->Branch("Vertices",&Nvertices);
    tree_->Branch("InTimePU",&NObservedInTimePUVertices);
    tree_->Branch("TruePU",&NTruePUInteractions);
@@ -160,14 +180,6 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(triggerBits->accept(i)){
 	 //Cunting events pass trigger
 	 Dracarys::TriggerPathCut++;
-// 	 std::cout << "PASS" << std::endl;
-// 	 std::cout <<"Number of muons: " << muons->size() <<std::endl;
-// 	 std::cout <<"Number of jets: " << jets->size() <<std::endl;
-// 	 if(mets->empty()){
-// 	   std::cout <<"METs: 0" <<std::endl;
-// 	 }else{
-// 	   std::cout <<"METs: " << (*mets)[0].et() <<std::endl;
-// 	 }
 
 	 //Requiring a good primery vertex
 	 bool flagGoodVertex = false;
@@ -210,13 +222,13 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     
 	     bool flagMuonChooser=false;
 	     int OurMuonDefinitionCounter=0;
-	     std::cout << "Muon counter loop" << std::endl;
+	     if (debug_) std::cout << "Muon counter loop" << std::endl;
 	     for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 	       double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
 	       if( (muon->pt() > MinMuonPt_) && (muon->pt() < MaxMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
 		 {
 		   if ( ((MuonID_==0) && (muon->isLooseMuon())) || ((MuonID_==1) && (muon->isMediumMuon())) ) OurMuonDefinitionCounter++;
-		   std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
+		   if (debug_) std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
 		 }
 	     }
 
@@ -231,7 +243,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       NMuons=OurMuonDefinitionCounter;
 	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
 		 XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
-		 std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
+		 if (debug_) std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
 		 AnaMuons.push_back(mu);
 		 Muon_charge.push_back(muon->charge());
 		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
@@ -245,23 +257,39 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       Dracarys::MissingETCut++;
 	       MET = XYZTLorentzVector(met.px(), met.py(), met.pz(), met.energy());
 
+	       //Basic jets selection
+	       bool flagAtLeastOneGoodJet=false;
+	       NJets=0;
+	       NbJets=0;
 	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
-		 XYZTLorentzVector je(jet->pt(), jet->eta(), jet->phi(), jet->energy());
-		 std::cout <<"Jet Pt: " << je.Px() <<std::endl;
-		 // event.Jets.push_back(je);
+		 XYZTLorentzVector je(jet->px(), jet->py(), jet->pz(), jet->energy());
+		 if (debug_) std::cout <<"Jet Pt: " << je.Pt() <<std::endl;
+		 if( (jet->pt() > MinJetPt_) && (abs(jet->eta()) < MaxJetEta_) )
+		   {
+		     AnaJets.push_back(je);
+		     bJetDiscriminator.push_back(jet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+		     NJets++;
+		   }
+		 if( (jet->pt() > MinbJetPt_) && (abs(jet->eta()) < MaxbJetEta_) && (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>bJetTag_) )
+                   {
+                     NbJets++;
+                   }
 	       }
-	       
-	       //Bmet.Et = met.pt();
-	       //Bmet.Phi= 0;
-	       //	       eventID. = ;
-	       //	       eventID. = ;
-	       
+
+	       if ( (NJets >= MinNJets_) && (NJets <= MaxNJets_) ) flagAtLeastOneGoodJet=true;
+	       if (!flagAtLeastOneGoodJet) return;
+	       Dracarys::BasicJetsCut++;
+
+	       //bJets cut
+	       bool flagbJetCut=false;
+	       if ( (NbJets >= MinNbJets_) && (NbJets <= MaxNbJets_) ) flagbJetCut=true;
+	       if (!flagbJetCut) return;
+	       Dracarys::bJetsCut++;
+
 	       tree_->Fill();
 	       AnaMuons.clear();
+	       AnaJets.clear();
 	       
-// 	       histContainer_["muons"]->Fill(muons->size() );
-// 	       histContainer_["jets" ]->Fill(jets->size()  );
-// 	       histContainer_["met"  ]->Fill(mets->empty() ? 0 : (*mets)[0].et());
 	     }
 	   }/*End cut at less a muon Pt>3 GeV*/
 	 }/*End cut a jet at less*/       
@@ -286,6 +314,8 @@ Dracarys::beginJob()
   Dracarys::aJetatLessCut=0;
   Dracarys::LeadingMuPtM3=0;
   Dracarys::MissingETCut=0;
+  Dracarys::BasicJetsCut=0;
+  Dracarys::bJetsCut=0;
 
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
@@ -304,7 +334,8 @@ Dracarys::endJob()
   std::cout<< "aJetatLessCut= "<< aJetatLessCut <<endl;
   std::cout<< "LeadingMuPtM3= "<< LeadingMuPtM3 <<endl;
   std::cout<< "MissingETCut= "<< MissingETCut <<endl;
-
+  std::cout<< "BasicJetsCut= "<< BasicJetsCut <<endl;
+  std::cout<< "bJetsCut= "<< bJetsCut <<endl;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

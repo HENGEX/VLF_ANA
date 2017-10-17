@@ -50,6 +50,8 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               obmet=cms.InputTag("slimmedMETs"),
                               #Is Data boolean
                               is_data = cms.bool(False),
+                              #Activate debug option
+                              debug = cms.bool(False),
                               #Cuts
                               Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
                               Pvtx_vtx_max  = cms.double(24.),
@@ -61,7 +63,15 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               MinNMuons = cms.int32(1), #Minimal number of muons following our definition
                               MaxNMuons = cms.int32(999), #Maximum number of muons following our defintiion
                               MinMET = cms.double(50.0), #Min MET
-                              
+                              MinJetPt = cms.double(30.0), #Min Jet Pt
+                              MaxJetEta = cms.double(5.0), #Max Jet Eta
+                              bJetTag = cms.double(0.8484), #b-jet ID working point
+                              MinbJetPt = cms.double(30.0), #Min b Jet Pt
+                              MaxbJetEta = cms.double(2.4), #Max b Jet Eta
+                              MinNJets = cms.int32(1), #Minimal number of jets following our definition
+                              MaxNJets = cms.int32(999), #Maximum number of jets following our defintion
+                              MinNbJets = cms.int32(0), #Minimal number of jets following our definition
+                              MaxNbJets = cms.int32(999), #Maximum number of jets following our defintion
                               )
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("Tree.root"),

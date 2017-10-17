@@ -81,8 +81,12 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   static int aJetatLessCut;
   static int LeadingMuPtM3;
   static int MissingETCut;
+  static int BasicJetsCut;
+  static int bJetsCut;
   //Is data boolean
   bool is_data_;
+  //Debugging option boolean
+  bool debug_;
   //Cuts
   int Pvtx_ndof_min_;
   double Pvtx_vtx_max_;
@@ -94,6 +98,15 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   int MinNMuons_;
   int MaxNMuons_;
   double MinMET_;
+  double MinJetPt_;
+  double MaxJetEta_;
+  int MinNJets_;
+  int MaxNJets_;
+  double bJetTag_;
+  double MinbJetPt_;
+  double MaxbJetEta_;
+  int MinNbJets_;
+  int MaxNbJets_;
   // TTree
   TTree* tree_;
 
