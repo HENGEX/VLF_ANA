@@ -38,7 +38,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
   tok_vertex_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-  //tok_pileup_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupInfo"))),
+  tok_pileup_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupInfo"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
   tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
   tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
@@ -115,7 +115,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Branches
    std::vector<XYZTLorentzVector> AnaMuons;
-   int Nvertices;
+   int Nvertices, NObservedInTimePUVertices, NTruePUInteractions;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
    int NMuons;
@@ -130,6 +130,8 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //tree_->Branch("MuonTightID",&Muon_tight);
    tree_->Branch("MuonMultiplicity",&NMuons);
    tree_->Branch("Vertices",&Nvertices);
+   tree_->Branch("InTimePU",&NObservedInTimePUVertices);
+   tree_->Branch("TruePU",&NTruePUInteractions);
    
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
@@ -175,21 +177,23 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     flagGoodVertex=true;
 	     Nvertices++;
 	   }
-	 }	 
+	 }
 
 	 if (!flagGoodVertex) return;
 	 Dracarys::GoodVertex++;
 
-	 /*	 if(!is_data_) {
-	   Handle<std::vector< PileupSummaryInfo > > PupInfo;
-	   //    iEvent.getByLabel(_pileupInfoSrc, PupInfo); 
-	   iEvent.getByToken(_pileupInfoSrc, PupInfo); 
+	 if(!is_data_) {
+	   Handle<std::vector< PileupSummaryInfo > > PUInfo;
+	   iEvent.getByToken(tok_pileup_, PUInfo); 
 	   
-	   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) { //loop over pileup info
-	     if(PVI->getBunchCrossing() == 0) { nObservedInTimePUVertices += PVI->getPU_NumInteractions(); } // number of observed in-time pileup interactions
-	     if(PVI->getBunchCrossing() == 0) { nTruePUInteractions = PVI->getTrueNumInteractions(); } // number of true in-time pileup interactions
+	   std::vector<PileupSummaryInfo>::const_iterator PVI;
+	   NObservedInTimePUVertices = 0;
+	   NTruePUInteractions = 0;
+	   for(PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) { //loop over pileup info
+	     if(PVI->getBunchCrossing() == 0) { NObservedInTimePUVertices += PVI->getPU_NumInteractions(); } // number of observed in-time pileup interactions
+	     if(PVI->getBunchCrossing() == 0) { NTruePUInteractions = PVI->getTrueNumInteractions(); } // number of true in-time pileup interactions
 	   }
-	   } */
+	 } 
 	 ////////////////////////////////////////
 
 	 if( jets->size() > 0 ){

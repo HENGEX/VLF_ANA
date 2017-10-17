@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="root"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
