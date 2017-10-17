@@ -29,6 +29,7 @@
 // Counters
 int Dracarys::NoCuts; 
 int Dracarys::TriggerPathCut;
+int Dracarys::GoodVertex;
 int Dracarys::aJetatLessCut;
 int Dracarys::LeadingMuPtM3;
 
@@ -37,6 +38,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerObjects_(consumes<pat::TriggerObjectStandAlone>(iConfig.getParameter<edm::InputTag>("objects"))),
   triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
   tok_vertex_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+  //tok_pileup_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupInfo"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
   tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
   tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
@@ -46,7 +48,12 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   usesResource("TFileService"); 
   // register to the TFileService
   edm::Service<TFileService> fs;
+  //Is Data Boolean
+  is_data_ = (iConfig.getParameter<bool>("is_data"));
   //Cuts
+  Pvtx_ndof_min_ = (iConfig.getParameter<int>("Pvtx_ndof_min"));
+  Pvtx_vtx_max_ = (iConfig.getParameter<double>("Pvtx_vtx_max"));
+  Pvtx_vtxdxy_max_ = (iConfig.getParameter<double>("Pvtx_vtxdxy_max"));
   MinMuonPt_ = (iConfig.getParameter<double>("MinMuonPt"));
   MuonIso_ = (iConfig.getParameter<double>("MuonIso"));
   MuonID_ = (iConfig.getParameter<int>("MuonID"));
@@ -103,11 +110,12 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    ////////////////////////////
 
-   //Cunting events
+   //Counting events
    Dracarys::NoCuts++;
 
    // Branches
    std::vector<XYZTLorentzVector> AnaMuons;
+   int Nvertices;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
    int NMuons;
@@ -121,6 +129,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_->Branch("MuonMediumID",&Muon_medium);
    //tree_->Branch("MuonTightID",&Muon_tight);
    tree_->Branch("MuonMultiplicity",&NMuons);
+   tree_->Branch("Vertices",&Nvertices);
    
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
@@ -153,6 +162,35 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	 }else{
 // 	   std::cout <<"METs: " << (*mets)[0].et() <<std::endl;
 // 	 }
+
+	 //Requiring a good primery vertex
+	 bool flagGoodVertex = false;
+
+	 Nvertices=0;
+	 for(reco::VertexCollection::const_iterator vtxIt = vertices->begin(); vtxIt!= vertices->end(); ++vtxIt) {
+	   if((vtxIt->isValid()) && !(vtxIt->isFake())) {
+	     if(vtxIt->ndof() < Pvtx_ndof_min_) continue; 
+	     if(abs(vtxIt->z()) >= Pvtx_vtx_max_) continue;
+	     if(sqrt((vtxIt->x()*vtxIt->x()) + (vtxIt->y()*vtxIt->y())) >= Pvtx_vtxdxy_max_) continue; 
+	     flagGoodVertex=true;
+	     Nvertices++;
+	   }
+	 }	 
+
+	 if (!flagGoodVertex) return;
+	 Dracarys::GoodVertex++;
+
+	 /*	 if(!is_data_) {
+	   Handle<std::vector< PileupSummaryInfo > > PupInfo;
+	   //    iEvent.getByLabel(_pileupInfoSrc, PupInfo); 
+	   iEvent.getByToken(_pileupInfoSrc, PupInfo); 
+	   
+	   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) { //loop over pileup info
+	     if(PVI->getBunchCrossing() == 0) { nObservedInTimePUVertices += PVI->getPU_NumInteractions(); } // number of observed in-time pileup interactions
+	     if(PVI->getBunchCrossing() == 0) { nTruePUInteractions = PVI->getTrueNumInteractions(); } // number of true in-time pileup interactions
+	   }
+	   } */
+	 ////////////////////////////////////////
 
 	 if( jets->size() > 0 ){
 	   Dracarys::aJetatLessCut++;
@@ -226,7 +264,12 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Dracarys::beginJob()
 {
- 
+
+  Dracarys::NoCuts=0; 
+  Dracarys::TriggerPathCut=0;
+  Dracarys::GoodVertex=0;
+  Dracarys::aJetatLessCut=0;
+  Dracarys::LeadingMuPtM3=0;
 
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
@@ -241,6 +284,7 @@ Dracarys::endJob()
 {
   std::cout<< "NoCuts= "<< NoCuts <<endl;
   std::cout<< "TriggerPathCut= "<< TriggerPathCut <<endl;
+  std::cout<< "GoodVertex= "<< GoodVertex <<endl;
   std::cout<< "aJetatLessCut= "<< aJetatLessCut <<endl;
   std::cout<< "LeadingMuPtM3= "<< LeadingMuPtM3 <<endl;
 

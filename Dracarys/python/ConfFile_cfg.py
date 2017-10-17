@@ -25,7 +25,12 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               obmuon=cms.InputTag("slimmedMuons"),
                               objet=cms.InputTag("slimmedJets"),
                               obmet=cms.InputTag("slimmedMETs"),
+                              #Is Data boolean
+                              is_data = cms.bool(False),
                               #Cuts
+                              Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
+                              Pvtx_vtx_max  = cms.double(24.),
+                              Pvtx_vtxdxy_max = cms.double(24.),
                               MinMuonPt = cms.double(3.0), #Min muon pt - for all muons -
                               MuonIso = cms.double(0.15), #Combined isolation with delta beta PU corrections
                               MuonID = cms.int32(1), #0: Loose, 1: Medium, 2: Tight

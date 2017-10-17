@@ -75,9 +75,15 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   //Counters
   static int NoCuts; 
   static int TriggerPathCut;
+  static int GoodVertex;
   static int aJetatLessCut;
   static int LeadingMuPtM3;
+  //Is data boolean
+  bool is_data_;
   //Cuts
+  int Pvtx_ndof_min_;
+  double Pvtx_vtx_max_;
+  double Pvtx_vtxdxy_max_;
   double MinMuonPt_;
   double MuonIso_;
   int MuonID_;
