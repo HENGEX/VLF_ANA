@@ -3,6 +3,28 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
+
+process.load('Configuration.Geometry.GeometryRecoDB_cff')
+process.load("Configuration.StandardSequences.MagneticField_38T_PostLS1_cff")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# NOTE: the pick the right global tag!
+#    for Spring15 50ns MC: global tag is 'auto:run2_mc_50ns'
+#    for Spring15 25ns MC: global tag is 'auto:run2_mc'
+#    for Run 2 data: global tag is 'auto:run2_data'
+#  as a rule, find the "auto" global tag in $CMSSW_RELEASE_BASE/src/Configuration/AlCa/python/autoCond.py
+#  This auto global tag will look up the "proper" global tag
+#  that is typically found in the DAS under the Configs for given dataset
+#  (although it can be "overridden" by requirements of a given release)
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
@@ -46,5 +68,23 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
+# include bad muon filter
+process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
+process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
+process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
-process.p = cms.Path(process.demo)
+# include bad charged hadron filter
+process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
+process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+
+# met filters
+process.load("VLF_ANA.Dracarys.AdditionalFilters_cfi")
+
+process.p = cms.Path(process.goodVerticesFilterPAT * 
+                     process.EcalDeadCellTriggerPrimitiveFilterPAT *
+                     process.HBHENoiseFilterPAT * 
+                     process.HBHENoiseIsoFilterPAT * 
+		     process.BadPFMuonFilter *
+		     process.BadChargedCandidateFilter *
+                     process.demo)
