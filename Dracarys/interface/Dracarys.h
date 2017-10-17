@@ -69,7 +69,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   edm::EDGetTokenT<reco::VertexCollection> tok_vertex_;
   edm::EDGetTokenT<std::vector< PileupSummaryInfo > > tok_pileup_;
   edm::EDGetTokenT<edm::View<pat::Jet> > tok_jets_;
-  edm::EDGetTokenT<edm::View<pat::MET> >  tok_met_;
+  edm::EDGetTokenT<pat::METCollection> tok_met_;
   edm::EDGetTokenT<edm::View<pat::Muon> > tok_muons_;
  
   /// histograms
@@ -80,6 +80,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   static int GoodVertex;
   static int aJetatLessCut;
   static int LeadingMuPtM3;
+  static int MissingETCut;
   //Is data boolean
   bool is_data_;
   //Cuts
@@ -92,6 +93,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   int MuonID_;
   int MinNMuons_;
   int MaxNMuons_;
+  double MinMET_;
   // TTree
   TTree* tree_;
 

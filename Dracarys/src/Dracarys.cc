@@ -32,6 +32,7 @@ int Dracarys::TriggerPathCut;
 int Dracarys::GoodVertex;
 int Dracarys::aJetatLessCut;
 int Dracarys::LeadingMuPtM3;
+int Dracarys::MissingETCut;
 
 Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
@@ -40,7 +41,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   tok_vertex_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   tok_pileup_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupInfo"))),
   tok_jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("objet"))),
-  tok_met_(consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("obmet"))),
+  tok_met_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("obmet"))),
   tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
   //,histContainer_()
 {
@@ -60,6 +61,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   MuonID_ = (iConfig.getParameter<int>("MuonID"));
   MinNMuons_ = (iConfig.getParameter<int>("MinNMuons"));
   MaxNMuons_ = (iConfig.getParameter<int>("MaxNMuons"));
+  MinMET_ = (iConfig.getParameter<double>("MinMET"));
   //Create a TTree
   tree_ = fs->make<TTree>("VLFTree","VLFTree");
 }
@@ -105,7 +107,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::View<pat::Jet> > jets;
    iEvent.getByToken(tok_jets_,jets);
    /*Handling MET*/   
-   edm::Handle<edm::View<pat::MET> > mets;
+   edm::Handle<pat::METCollection> mets;
    iEvent.getByToken(tok_met_,mets);
    const pat::MET &met = mets->front();
 
@@ -116,14 +118,15 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Branches
    std::vector<XYZTLorentzVector> AnaMuons;
+   XYZTLorentzVector MET;
    int Nvertices, NObservedInTimePUVertices, NTruePUInteractions;
    std::vector<double> Muon_charge, Combined_Iso;
    std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
    int NMuons;
 
    //Tree Structure -> branches should be declared in decreasing size
-
    tree_->Branch("AnaMuons",&AnaMuons);
+   tree_->Branch("AnaMET",&MET);
    tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
    tree_->Branch("Muon_charge",&Muon_charge);
    tree_->Branch("MuonLooseID",&Muon_loose);
@@ -237,6 +240,11 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 Muon_tight.push_back(muon->isTightMuon(*firstGoodVertex));
 	       }
 
+	       //MET selection
+	       if (met.pt() < MinMET_) return;
+	       Dracarys::MissingETCut++;
+	       MET = XYZTLorentzVector(met.px(), met.py(), met.pz(), met.energy());
+
 	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
 		 XYZTLorentzVector je(jet->pt(), jet->eta(), jet->phi(), jet->energy());
 		 std::cout <<"Jet Pt: " << je.Px() <<std::endl;
@@ -277,6 +285,7 @@ Dracarys::beginJob()
   Dracarys::GoodVertex=0;
   Dracarys::aJetatLessCut=0;
   Dracarys::LeadingMuPtM3=0;
+  Dracarys::MissingETCut=0;
 
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);
@@ -294,6 +303,7 @@ Dracarys::endJob()
   std::cout<< "GoodVertex= "<< GoodVertex <<endl;
   std::cout<< "aJetatLessCut= "<< aJetatLessCut <<endl;
   std::cout<< "LeadingMuPtM3= "<< LeadingMuPtM3 <<endl;
+  std::cout<< "MissingETCut= "<< MissingETCut <<endl;
 
 }
 

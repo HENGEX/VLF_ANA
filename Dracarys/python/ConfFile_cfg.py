@@ -38,6 +38,7 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               MuonID = cms.int32(1), #0: Loose, 1: Medium, 2: Tight
                               MinNMuons = cms.int32(1), #Minimal number of muons following our definition
                               MaxNMuons = cms.int32(999), #Maximum number of muons following our defintiion
+                              MinMET = cms.double(50.0), #Min MET
                               
                               )
 process.TFileService = cms.Service("TFileService",
