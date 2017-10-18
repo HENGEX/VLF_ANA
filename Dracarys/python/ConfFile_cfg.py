@@ -72,6 +72,8 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               MaxNJets = cms.int32(999), #Maximum number of jets following our defintion
                               MinNbJets = cms.int32(0), #Minimal number of jets following our definition
                               MaxNbJets = cms.int32(999), #Maximum number of jets following our defintion
+                              MinMTMuonMet =  cms.double(0.0),
+                              MaxMTMuonMet =  cms.double(100.0),
                               )
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("Tree.root"),

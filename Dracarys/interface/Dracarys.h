@@ -52,7 +52,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   // Operations
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+  virtual void Clean();
 
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -83,6 +83,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   static int MissingETCut;
   static int BasicJetsCut;
   static int bJetsCut;
+  static int MuonMetMTCut;
   //Is data boolean
   bool is_data_;
   //Debugging option boolean
@@ -107,8 +108,22 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   double MaxbJetEta_;
   int MinNbJets_;
   int MaxNbJets_;
+  double MinMTMuonMet_;
+  double MaxMTMuonMet_;
   // TTree
   TTree* tree_;
+
+  //Analysis variables
+  std::vector<XYZTLorentzVector> AnaMuons;
+  std::vector<XYZTLorentzVector> AnaJets;
+  XYZTLorentzVector MET;
+  int Nvertices, NObservedInTimePUVertices, NTruePUInteractions;
+  std::vector<double> Muon_charge, Combined_Iso;
+  std::vector <bool> Muon_loose, Muon_medium, Muon_tight;
+  std::vector<double> bJetDiscriminator;
+  double MT_LeadingMuon_MET;
+  int NMuons;
+  int NJets, NbJets;
 
   };
 #endif
