@@ -3,4 +3,5 @@
 #*#
 *.pyc
 *.o
-
+Dracarys/crab_projects/
+*.log
