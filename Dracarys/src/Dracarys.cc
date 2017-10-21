@@ -136,7 +136,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Clean();
 
    //Tree Structure -> branches should be declared in decreasing size
-   tree_->Branch("AnaMuons",&AnaMuons);
+   /*   tree_->Branch("AnaMuons",&AnaMuons);
    tree_->Branch("AnaJets",&AnaJets);
    tree_->Branch("AnaMET",&MET);
    tree_->Branch("combinedSecondaryVertexbJetDiscriminator",&bJetDiscriminator);
@@ -152,7 +152,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_->Branch("Vertices",&Nvertices);
    tree_->Branch("InTimePU",&NObservedInTimePUVertices);
    tree_->Branch("TruePU",&NTruePUInteractions);
-   
+   */
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
@@ -341,6 +341,24 @@ Dracarys::beginJob()
   Dracarys::BasicJetsCut=0;
   Dracarys::bJetsCut=0;
   Dracarys::MuonMetMTCut=0;
+
+  //Tree Structure -> branches should be declared in decreasing size                                                                                               
+  tree_->Branch("AnaMuons",&AnaMuons);
+  tree_->Branch("AnaJets",&AnaJets);
+  tree_->Branch("AnaMET",&MET);
+  tree_->Branch("combinedSecondaryVertexbJetDiscriminator",&bJetDiscriminator);
+  tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
+  tree_->Branch("Muon_charge",&Muon_charge);
+  tree_->Branch("MuonLooseID",&Muon_loose);
+  tree_->Branch("MuonMediumID",&Muon_medium);
+  tree_->Branch("MuonTightID",&Muon_tight);
+  tree_->Branch("MuonMultiplicity",&NMuons);
+  tree_->Branch("JetsMultiplicity",&NJets);
+  tree_->Branch("bJetsMultiplicity",&NbJets);
+  tree_->Branch("MT_LeadingMuon_MET",&MT_LeadingMuon_MET);
+  tree_->Branch("Vertices",&Nvertices);
+  tree_->Branch("InTimePU",&NObservedInTimePUVertices);
+  tree_->Branch("TruePU",&NTruePUInteractions);
 
   // book histograms:
   // histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);

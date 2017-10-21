@@ -24,3 +24,5 @@ Checking status:
 crab status -d crab_projects/YOUR_CRAB_TASK_DIRECTORY/
 Resubmitting failed jobs (check in the status output if the jobs can be resubmitted):
 crab resubmit -d crab_projects/YOUR_CRAB_TASK_DIRECTORY/
+
+A good tutorial on crab can be found here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial
