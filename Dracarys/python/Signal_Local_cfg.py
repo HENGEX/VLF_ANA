@@ -1,4 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+######GETTING ALL ROOT FILES#########
+import commands as cmd
+#####################################
+
 
 process = cms.Process("Demo")
 
@@ -26,76 +30,88 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+
+######GETTING ALL ROOT FILES#########
+SignalContent=cmd.getoutput('ls /eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/')
+FullList=SignalContent.split('\n')
+AllFiles=[]
+for i in FullList:
+    if 'root' not in i: continue
+    else:
+        AllFiles.append('file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/'+i)
+print 'Files found:', AllFiles[0]
+#####################################
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring([
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_1.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_10.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_11.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_12.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_13.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_14.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_15.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_16.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_17.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_18.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_2.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_20.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_21.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_22.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_23.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_24.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_27.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_28.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_3.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_30.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_33.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_35.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_36.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_37.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_38.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_39.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_40.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_41.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_42.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_43.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_44.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_46.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_47.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_48.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_49.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_5.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_50.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_51.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_52.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_53.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_55.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_57.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_59.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_6.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_60.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_62.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_63.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_64.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_65.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_66.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_67.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_7.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_72.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_73.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_79.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_8.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_80.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_81.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_82.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_83.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_85.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_86.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_87.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_90.root',
-            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_91.root']
-                                                              )
+                            fileNames = cms.untracked.vstring(AllFiles)
+#                            fileNames = cms.untracked.vstring([
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_1.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_10.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_11.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_12.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_13.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_14.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_15.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_16.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_17.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_18.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_2.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_20.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_21.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_22.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_23.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_24.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_27.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_28.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_3.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_30.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_33.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_35.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_36.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_37.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_38.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_39.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_40.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_41.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_42.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_43.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_44.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_46.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_47.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_48.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_49.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_5.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_50.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_51.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_52.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_53.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_55.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_57.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_59.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_6.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_60.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_62.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_63.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_64.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_65.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_66.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_67.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_7.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_72.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_73.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_79.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_8.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_80.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_81.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_82.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_83.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_85.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_86.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_87.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_90.root',
+#            'file:/eos/user/j/jruizalv/VLF_Samples/MINIAODSIM/MINIAODSIM_91.root']
+#                                                              )
                             )
 
 process.demo = cms.EDAnalyzer('Dracarys',
