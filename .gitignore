@@ -5,3 +5,5 @@
 *.o
 Dracarys/crab_projects/
 *.log
+Dracarys/test/CrabConfigs_*
+Dracarys/test/crab_projects
