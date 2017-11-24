@@ -57,6 +57,7 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   //Debugging option
   debug_ = (iConfig.getParameter<bool>("debug"));
   //Cuts
+  TriggerPath_ = (iConfig.getParameter<string>("trigger_path"));
   Pvtx_ndof_min_ = (iConfig.getParameter<int>("Pvtx_ndof_min"));
   Pvtx_vtx_max_ = (iConfig.getParameter<double>("Pvtx_vtx_max"));
   Pvtx_vtxdxy_max_ = (iConfig.getParameter<double>("Pvtx_vtxdxy_max"));
@@ -170,7 +171,8 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      /*End cut de version*/
      
      /*See if path pass*/
-     std::string TriggerWanted="HLT_PFMET110_PFMHT110_IDTight";
+     //std::string TriggerWanted="HLT_PFMET110_PFMHT110_IDTight";
+     std::string TriggerWanted=TriggerPath_;
 
      if( TriggerNameVersionOff ==  TriggerWanted ) {
        if(triggerBits->accept(i)){
