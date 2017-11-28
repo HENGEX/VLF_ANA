@@ -53,6 +53,7 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               #Activate debug option
                               debug = cms.bool(False),
                               #Cuts
+                              trigger_path = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
                               Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
                               Pvtx_vtx_max  = cms.double(24.),
                               Pvtx_vtxdxy_max = cms.double(24.),

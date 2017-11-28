@@ -89,6 +89,7 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   //Debugging option boolean
   bool debug_;
   //Cuts
+  string TriggerPath_;
   int Pvtx_ndof_min_;
   double Pvtx_vtx_max_;
   double Pvtx_vtxdxy_max_;
