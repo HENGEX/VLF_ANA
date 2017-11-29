@@ -14,7 +14,7 @@
 // Original Author:  Jose Ruiz
 //         Created:  Tue, 08 Aug 2017 09:38:40 GMT
 //
-//
+
 
 
 // system include files
@@ -48,16 +48,20 @@ Dracarys::Dracarys(const edm::ParameterSet& iConfig):
   tok_muons_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("obmuon")))
   //,histContainer_()
 {
-  //now do what ever initialization is needed
+  //now do whatever initialization is needed
   usesResource("TFileService"); 
   // register to the TFileService
   edm::Service<TFileService> fs;
   //Is Data Boolean
   is_data_ = (iConfig.getParameter<bool>("is_data"));
+  //trigger variables
+  isTrigger_ = (iConfig.getParameter<bool>("isTrigger"));
+  isTriggerToo_ = (iConfig.getParameter<bool>("isTriggerToo"));
+  TriggerPath1_ = (iConfig.getParameter<string>("TriggerPath1"));
+  TriggerPath2_ = (iConfig.getParameter<string>("TriggerPath2"));
   //Debugging option
   debug_ = (iConfig.getParameter<bool>("debug"));
   //Cuts
-  TriggerPath_ = (iConfig.getParameter<string>("trigger_path"));
   Pvtx_ndof_min_ = (iConfig.getParameter<int>("Pvtx_ndof_min"));
   Pvtx_vtx_max_ = (iConfig.getParameter<double>("Pvtx_vtx_max"));
   Pvtx_vtxdxy_max_ = (iConfig.getParameter<double>("Pvtx_vtxdxy_max"));
@@ -157,6 +161,9 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
+   isTrigger_ = false;
+   isTriggerToo_ = false;
+
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
 
      /*Cut the version of the trigger path*/
@@ -166,18 +173,24 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      std::string TriggerNameVersionOff;
      if (start_pos != std::string::npos){
        TriggerNameVersionOff= nameV.erase(start_pos, version.length()+4);
-     } 
-     
-     /*End cut de version*/
-     
-     /*See if path pass*/
-     //std::string TriggerWanted="HLT_PFMET110_PFMHT110_IDTight";
-     std::string TriggerWanted=TriggerPath_;
+     }
+    /*End cut of version number in the path name of the triggers*/
 
-     if( TriggerNameVersionOff ==  TriggerWanted ) {
-       if(triggerBits->accept(i)){
-	 //Cunting events pass trigger
-	 Dracarys::TriggerPathCut++;
+     if(( TriggerNameVersionOff ==  TriggerPath1_)){//||(TriggerPath1_ == "")){
+       isTrigger_= true;
+       continue;
+     } else{
+     if((TriggerNameVersionOff == TriggerPath2_)){//||(TriggerPath2_ == "")){
+	 isTriggerToo_ = true;
+	 continue;
+       }}
+   } //here we have finished exploring if event passes both triggers
+
+
+     if((isTrigger_ == true)&&(isTriggerToo_ == true)){
+     
+ 	 //Counting number of events which pass the triggers
+       Dracarys::TriggerPathCut++;
 
 	 //Requiring a good primery vertex
 	 bool flagGoodVertex = false;
@@ -216,7 +229,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   Dracarys::aJetatLessCut++;
 	   if( muons->size() > 0 ){
 	     // loop muon collection and fill histograms
-	     /* at less a muon Pt>3 GeV*/
+	     /* at least one muon with Pt>3 GeV*/
 	     
 	     bool flagMuonChooser=false;
 	     int OurMuonDefinitionCounter=0;
@@ -297,16 +310,13 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       tree_->Fill();
 	       
 	     }
-	   }/*End cut at less a muon Pt>3 GeV*/
-	 }/*End cut a jet at less*/       
-       }
+	   }/*End cut at least one muon with Pt>3 GeV*/
+	 }/*End cut one jet at least */       
      }
-     /*end See if path pass*/  
-     
-     
-   }
-   
 }
+     /*end of the  if for the triggers*/  
+     
+   
 
 void 
 Dracarys::Clean()
@@ -387,7 +397,7 @@ Dracarys::endJob()
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 Dracarys::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
+  //The following says we don't know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();

@@ -21,7 +21,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #  that is typically found in the DAS under the Configs for given dataset
 #  (although it can be "overridden" by requirements of a given release)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring(
         'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root'
-        
+#
         #                            fileNames = cms.untracked.vstring(
         #        'file:/afs/cern.ch/user/c/csalazar/WorkPublic/VLF_Fill/CMSSW_8_0_25/src/VLF_Fill/Tyrion/test/savep1.root'
         
@@ -49,11 +49,15 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               objet=cms.InputTag("slimmedJets"),
                               obmet=cms.InputTag("slimmedMETs"),
                               #Is Data boolean
-                              is_data = cms.bool(False),
+                              is_data = cms.bool(True),
                               #Activate debug option
                               debug = cms.bool(False),
+                              #Trigger variables
+                              isTrigger = cms.bool(False),
+                              isTriggerToo = cms.bool(False),
+                              TriggerPath1 = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
+                              TriggerPath2 = cms.string("HLT_DoubleMu3_PFMET50 "),
                               #Cuts
-                              trigger_path = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
                               Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
                               Pvtx_vtx_max  = cms.double(24.),
                               Pvtx_vtxdxy_max = cms.double(24.),
@@ -94,10 +98,10 @@ process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidate
 # met filters
 process.load("VLF_ANA.Dracarys.AdditionalFilters_cfi")
 
-process.p = cms.Path(process.goodVerticesFilterPAT * 
-                     process.EcalDeadCellTriggerPrimitiveFilterPAT *
-                     process.HBHENoiseFilterPAT * 
-                     process.HBHENoiseIsoFilterPAT * 
+process.p = cms.Path(process.goodVerticesFilterRECO * 
+                     process.EcalDeadCellTriggerPrimitiveFilterRECO *
+                     process.HBHENoiseFilterRECO * 
+                     process.HBHENoiseIsoFilterRECO * 
 		     process.BadPFMuonFilter *
 		     process.BadChargedCandidateFilter *
                      process.demo)

@@ -86,10 +86,14 @@ class Dracarys : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   static int MuonMetMTCut;
   //Is data boolean
   bool is_data_;
+  //determine if event passes triggers
+  bool isTrigger_;
+  bool isTriggerToo_;
+  string TriggerPath1_;
+  string TriggerPath2_;
   //Debugging option boolean
   bool debug_;
   //Cuts
-  string TriggerPath_;
   int Pvtx_ndof_min_;
   double Pvtx_vtx_max_;
   double Pvtx_vtxdxy_max_;
