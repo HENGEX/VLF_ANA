@@ -161,8 +161,18 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
-   isTrigger_ = false;
-   isTriggerToo_ = false;
+
+     if( TriggerPath2_ == "" ){
+       isTriggerToo_ = true;
+     } else{
+       isTriggerToo_ = false;
+     } 
+
+     if( TriggerPath1_ == "" ){
+       isTrigger_ = true;
+     } else{
+       isTrigger_ = false;
+     }
 
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
 
@@ -176,15 +186,23 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
     /*End cut of version number in the path name of the triggers*/
 
-     if(( TriggerNameVersionOff ==  TriggerPath1_)){//||(TriggerPath1_ == "")){
-       isTrigger_= true;
-       continue;
-     } else{
-     if((TriggerNameVersionOff == TriggerPath2_)){//||(TriggerPath2_ == "")){
-	 isTriggerToo_ = true;
-	 continue;
-       }}
-   } //here we have finished exploring if event passes both triggers
+     if( TriggerNameVersionOff ==  TriggerPath1_ ){
+        isTrigger_= true;
+        continue;
+     } else if( TriggerNameVersionOff == TriggerPath2_ ){
+    	 isTriggerToo_ = true;
+    	 continue;
+     }
+   }
+   //   if(( TriggerNameVersionOff ==  TriggerPath1_)||(TriggerPath1_ == "")){
+   //     isTrigger_= true;
+   //     continue;
+   //   } else{
+   //   if((TriggerNameVersionOff == TriggerPath2_)||(TriggerPath2_ == "")){
+   // 	 isTriggerToo_ = true;
+   // 	 continue;
+   //     }}
+   // } //here we have finished exploring if the event passes both triggers
 
 
      if((isTrigger_ == true)&&(isTriggerToo_ == true)){
