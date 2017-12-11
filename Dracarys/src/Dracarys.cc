@@ -184,25 +184,42 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (start_pos != std::string::npos){
        TriggerNameVersionOff= nameV.erase(start_pos, version.length()+4);
      }
+     //here we can see if the trigger was used
+     //std::cout << "Trigger under consideration " <<  TriggerNameVersionOff << " Looking for " << TriggerPath1_ << " isTrigger_ is " << isTrigger_ << std::endl;
     /*End cut of version number in the path name of the triggers*/
 
-     if( TriggerNameVersionOff ==  TriggerPath1_ ){
-        isTrigger_= true;
-        continue;
-     } else if( TriggerNameVersionOff == TriggerPath2_ ){
-    	 isTriggerToo_ = true;
-    	 continue;
+     if(TriggerNameVersionOff ==  TriggerPath1_){
+       if(triggerBits->accept(i)){
+       isTrigger_ = true;
+       }
+       //std::cout << "Found it! triggerwanted " <<  TriggerNameVersionOff << " and we get " << TriggerPath1_ << " Now isTrigger_ goes to " << isTrigger_ << std::endl;
+       break;
      }
    }
-   //   if(( TriggerNameVersionOff ==  TriggerPath1_)||(TriggerPath1_ == "")){
-   //     isTrigger_= true;
-   //     continue;
-   //   } else{
-   //   if((TriggerNameVersionOff == TriggerPath2_)||(TriggerPath2_ == "")){
-   // 	 isTriggerToo_ = true;
-   // 	 continue;
-   //     }}
-   // } //here we have finished exploring if the event passes both triggers
+
+
+   for (unsigned int k = 0, n = triggerBits->size(); k < n; ++k){
+
+     /*Cut the version of the trigger path*/
+     std::string nameVer = names.triggerName(k);
+     std::string aVersion ="_v";
+     size_t start_posi = nameVer.rfind(aVersion);
+     std::string OtherTriggerNameVersionOff;
+     if (start_posi != std::string::npos){
+       OtherTriggerNameVersionOff = nameVer.erase(start_posi, aVersion.length()+4); //see how this works
+     }
+     //here
+     //std::cout << "Other Trigger is " <<  OtherTriggerNameVersionOff << " Looking for " << TriggerPath2_ << " we have isTriggerToo_ in " << isTriggerToo_ << std::endl;
+    /*End cut of version number in the path name of the triggers*/
+
+     if(OtherTriggerNameVersionOff ==  TriggerPath2_){
+       if(triggerBits->accept(k)){
+       isTriggerToo_ = true;
+       }
+       //std::cout << "Found it too! other trigger " <<  OtherTriggerNameVersionOff << " and we get " << TriggerPath2_ << " isTriggerToo_ goes to " << isTriggerToo_ << std::endl;
+       break;
+     }
+   }
 
 
      if((isTrigger_ == true)&&(isTriggerToo_ == true)){
@@ -329,10 +346,11 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       
 	     }
 	   }/*End cut at least one muon with Pt>3 GeV*/
-	 }/*End cut one jet at least */       
-     }
-}
-     /*end of the  if for the triggers*/  
+	 } /*End cut one jet at least */       
+     }    //else {
+         //std::cout << "At least one of the triggers wanted was not found in the event." << std::endl;
+        // }
+}      /*end of the  if for the triggers*/  
      
    
 
@@ -404,9 +422,9 @@ Dracarys::endJob()
   std::cout<< "NoCuts= "<< NoCuts <<endl;
   std::cout<< "TriggerPathCut= "<< TriggerPathCut <<endl;
   std::cout<< "GoodVertex= "<< GoodVertex <<endl;
-  std::cout<< "aJetatLessCut= "<< aJetatLessCut <<endl;
+  std::cout<< "AtLeastOneJet= "<< aJetatLessCut <<endl;
   std::cout<< "LeadingMuPtM3= "<< LeadingMuPtM3 <<endl;
-  std::cout<< "MissingETCut= "<< MissingETCut <<endl;
+  std::cout<< "MissingET= "<< MissingETCut <<endl;
   std::cout<< "BasicJetsCut= "<< BasicJetsCut <<endl;
   std::cout<< "bJetsCut= "<< bJetsCut <<endl;
   std::cout<< "MuonMetMTCut= "<< MuonMetMTCut <<endl;

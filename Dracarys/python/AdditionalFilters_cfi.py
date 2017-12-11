@@ -73,3 +73,14 @@ goodVerticesFilterRECO = hlt.triggerResultsFilter.clone(
     l1tResults = '',
     throw = False
 )
+
+
+# this a more better way to see events passing triggers but not working yet for unknown reason.
+#
+# mySelectionFilterRECO = hlt.triggerResultsFilter.clone(
+#     hltResults = cms.InputTag('TriggerResults::RECO'), #or HLT instead of RECO?
+#     triggerConditions = 
+#       cms.vstring('HLT_PFMET110_PFMHT110_IDTight* OR HLT_DoubleMu3_PFMET50*'), 
+#     #l1tResults = cms.InputTag("gtDigis"),
+#     throw = False
+# )

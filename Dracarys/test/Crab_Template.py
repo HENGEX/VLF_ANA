@@ -5,7 +5,7 @@ config = Configuration()
 #config = config()
 
 config.section_("General")
-config.General.requestName = 'data_PFMET110_trigger'
+config.General.requestName = 'data_two_triggers'
 config.General.workArea = 'crab_project'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -29,7 +29,7 @@ config.Data.unitsPerJob = 500000
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 config.Data.outLFNDirBase = '/store/user/nvanegas/VLF_ANA/'
 config.Data.publication = False
-config.Data.outputDatasetTag = 'data_PFMET110_trigger'
+config.Data.outputDatasetTag = 'data_two_triggers'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
