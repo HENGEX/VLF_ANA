@@ -51,11 +51,10 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               #Trigger variables
                               isTrigger = cms.bool(False),
                               isTriggerToo = cms.bool(False),
-                              TriggerPath1 = cms.string(""), #for testing
-                              #TriggerPath1 = cms.string("HLT_PFMET110_PFMHT110_IDTight"), #or empty for no trigger
-                              # TriggerPath1 = cms.string("HLT_PFHT475"), # also used for testing or empty for no trigger
+                              #TriggerPath1 = cms.string(""), #for testing
+                              TriggerPath1 = cms.string("HLT_PFMET110_PFMHT110_IDTight"), #or empty for no trigger
                               #TriggerPath2 = cms.string(""), #also for testing or empty for no trigger
-                              TriggerPath2 = cms.string("HLT_DoubleMu3_PFMET50"), #or empty
+                              TriggerPath2 = cms.string("HLT_DoubleMu3_PFMET50"),
                               #Cuts
                               Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
                               Pvtx_vtx_max  = cms.double(24.),

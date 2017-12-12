@@ -5,8 +5,8 @@ config = Configuration()
 #config = config()
 
 config.section_("General")
-config.General.requestName = 'data_two_triggers'
-config.General.workArea = 'crab_project'
+config.General.requestName = 'TASK'
+config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -18,18 +18,23 @@ config.JobType.allowUndistributedCMSSW = True
 
 
 config.section_("Data")
+
+#to run over data, not mc
 config.Data.inputDataset = '/DoubleMuon/Run2016C-23Sep2016-v1/MINIAOD'
+#obtained from DAS with 'dataset=/DoubleMu*/*Run2016C*/MINIAOD*'
+#as in https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial#CRAB_configuration_file_examples
+#for mc the configuration files looks different
 
+#config.Data.inputDataset = '/DATASAMPLE'
 
-#config.Data.inputDataset = 'dataset'
 config.Data.inputDBS = 'global'
 #config.Data.splitting = 'FileBased'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 500000
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
-config.Data.outLFNDirBase = '/store/user/nvanegas/VLF_ANA/'
+config.Data.outLFNDirBase = '/store/user/nvanegas/VLF_ANA/OUTPUTDIR/'
 config.Data.publication = False
-config.Data.outputDatasetTag = 'data_two_triggers'
+config.Data.outputDatasetTag = 'TASK'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
