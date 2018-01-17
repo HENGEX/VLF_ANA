@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring(
         'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root'
-#
+        
         #                            fileNames = cms.untracked.vstring(
         #        'file:/afs/cern.ch/user/c/csalazar/WorkPublic/VLF_Fill/CMSSW_8_0_25/src/VLF_Fill/Tyrion/test/savep1.root'
         
@@ -55,8 +55,10 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               #Trigger variables
                               isTrigger = cms.bool(False),
                               isTriggerToo = cms.bool(False),
-                              TriggerPath1 = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
-                              TriggerPath2 = cms.string("HLT_DoubleMu3_PFMET50 "),
+                              #TriggerPath1 = cms.string(""), #for testing or no trigger
+                              TriggerPath1 = cms.string("HLT_PFMET110_PFMHT110_IDTight"), 
+                              #TriggerPath2 = cms.string(""), #also for testing or empty for no trigger
+                              TriggerPath2 = cms.string("HLT_DoubleMu3_PFMET50"), #or empty
                               #Cuts
                               Pvtx_ndof_min   = cms.int32(4), #Vertices DOF
                               Pvtx_vtx_max  = cms.double(24.),
