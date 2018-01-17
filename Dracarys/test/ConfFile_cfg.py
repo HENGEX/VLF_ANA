@@ -21,7 +21,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #  that is typically found in the DAS under the Configs for given dataset
 #  (although it can be "overridden" by requirements of a given release)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -30,8 +30,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-'root://eoscms.cern.ch//eos/cms/store/data/Run2016C/DoubleMuon/MINIAOD/23Sep2016-v1/80000/0044DA75-708B-E611-8F8B-008CFA1974A4.root' #for data
-#        'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root' #for MC
+#'root://eoscms.cern.ch//eos/cms/store/data/Run2016C/DoubleMuon/MINIAOD/23Sep2016-v1/80000/0044DA75-708B-E611-8F8B-008CFA1974A4.root' #for data
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root' #for MC
  )
   )
 
@@ -45,7 +45,7 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               objet=cms.InputTag("slimmedJets"),
                               obmet=cms.InputTag("slimmedMETs"),
                               #Is Data boolean
-                              is_data = cms.bool(True),
+                              is_data = cms.bool(False),
                               #Activate debug option
                               debug = cms.bool(False),
                               #Trigger variables
@@ -79,7 +79,7 @@ process.demo = cms.EDAnalyzer('Dracarys',
                               MaxMTMuonMet =  cms.double(100.0),
                               )
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("Tree_data_doubMu2_trigger.root"),
+                                   fileName = cms.string("Tree.root"),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
@@ -96,10 +96,10 @@ process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidate
 # met filters
 process.load("VLF_ANA.Dracarys.AdditionalFilters_cfi")
 
-process.p = cms.Path(process.goodVerticesFilterRECO * 
-                     process.EcalDeadCellTriggerPrimitiveFilterRECO *
-                     process.HBHENoiseFilterRECO * 
-                     process.HBHENoiseIsoFilterRECO * 
+process.p = cms.Path(process.goodVerticesFilterPAT * 
+                     process.EcalDeadCellTriggerPrimitiveFilterPAT *
+                     process.HBHENoiseFilterPAT * 
+                     process.HBHENoiseIsoFilterPAT * 
 		     process.BadPFMuonFilter *
 		     process.BadChargedCandidateFilter *
                      process.demo)
