@@ -28,9 +28,9 @@ config.Data.inputDataset = '/DoubleMuon/Run2016C-23Sep2016-v1/MINIAOD'
 #config.Data.inputDataset = '/DATASAMPLE'
 
 config.Data.inputDBS = 'global'
-#config.Data.splitting = 'FileBased'
-config.Data.splitting = 'EventAwareLumiBased'
-config.Data.unitsPerJob = 500000
+config.Data.splitting = 'LumiBased'
+config.Data.unitsPerJob = 50
+config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 config.Data.outLFNDirBase = '/store/user/nvanegas/VLF_ANA/OUTPUTDIR/'
 config.Data.publication = False
