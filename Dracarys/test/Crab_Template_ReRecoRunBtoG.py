@@ -20,12 +20,12 @@ config.JobType.allowUndistributedCMSSW = True
 config.section_("Data")
 
 #to run over data, not mc
-config.Data.inputDataset = '/DoubleMuon/Run2016C-23Sep2016-v1/MINIAOD'
+#config.Data.inputDataset = '/DoubleMuon/Run2016C-23Sep2016-v1/MINIAOD'
 #obtained from DAS with 'dataset=/DoubleMu*/*Run2016C*/MINIAOD*'
 #as in https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial#CRAB_configuration_file_examples
 #for mc the configuration files looks different
 
-#config.Data.inputDataset = '/DATASAMPLE'
+config.Data.inputDataset = 'DATASAMPLE'
 
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'LumiBased'
