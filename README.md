@@ -2,7 +2,7 @@
 
 ## Installation instructions:
 
-#lxplus 6
+## lxplus 6  
 export SCRAM_ARCH=slc6_amd64_gcc630
 
 cmsrel CMSSW_9_4_3
