@@ -2,18 +2,17 @@
 
 ## Installation instructions:
 
-export SCRAM_ARCH=slc6_amd64_gcc530
+#lxplus 6
+export SCRAM_ARCH=slc6_amd64_gcc630
 
-cmsrel CMSSW_8_0_25
+cmsrel CMSSW_9_4_3
 
-cd CMSSW_8_0_25/src
+cd CMSSW_9_4_3/src
 
 cmsenv
 
 git cms-init  
 git cms-addpkg RecoMET/METProducers  
-scram b -j 10  
-git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter  
 scram b -j 10  
 
 
