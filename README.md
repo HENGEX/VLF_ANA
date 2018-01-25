@@ -16,7 +16,11 @@ git cms-addpkg RecoMET/METProducers
 scram b -j 10  
 
 
-## Running with crab:
+## Running with crab:  
+NOTE: you need to have a Grid cetrificate registered with VOMS 
+source /cvmfs/cms.cern.ch/crab3/crab.sh  
+voms-proxy-init --voms cms --valid 168:00
+
 Create a new crab task and submit the jobs:
 crab submit -c python/YOUR_CRAB_CONFIG_FILE.py
 Checking status:
