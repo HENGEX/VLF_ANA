@@ -16,10 +16,10 @@ git cms-init
 git cms-addpkg RecoMET/METProducers  
 scram b -j 10  
 
-git cms-addpkg MagneticField/GeomBuilder
+git cms-addpkg MagneticField/GeomBuilder  
 scram b -j 10  
 
-git clone https://github.com/HENGEX/VLF_ANA -b cmssw-9.4.3
+git clone https://github.com/HENGEX/VLF_ANA -b cmssw-9.4.3  
 scram b -j 10  
 
 
