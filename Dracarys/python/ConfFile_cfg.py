@@ -28,10 +28,28 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
+'''
+Updating files for 2017 data query in das
+
+query: file dataset=/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall17NanoAOD-PUMoriond17_94X_mcRun2_asymptotic_v2-v1/NANOAODSIM
+
+output:  https://cmsweb.cern.ch/das/request?input=file%20dataset%3D/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall17NanoAOD-PUMoriond17_94X_mcRun2_asymptotic_v2-v1/NANOAODSIM&instance=prod/global&idx=0&limit=10
+'''
+#process.source = cms.Source("PoolSource",
+                            
+                            #fileNames = cms.untracked.vstring(
+        #'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root'
+##
+        ##                            fileNames = cms.untracked.vstring(
+        ##        'file:/afs/cern.ch/user/c/csalazar/WorkPublic/VLF_Fill/CMSSW_8_0_25/src/VLF_Fill/Tyrion/test/savep1.root'
+        
+        #)
+                            #)
+
 process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/14473FEF-1ACD-E611-8C84-00266CFFBC60.root'
+        '/store/mc/RunIIFall17NanoAOD/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/NANOAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v2-v1/20000/12701488-C1FE-E711-8CD8-002481CFE642.root'
 #
         #                            fileNames = cms.untracked.vstring(
         #        'file:/afs/cern.ch/user/c/csalazar/WorkPublic/VLF_Fill/CMSSW_8_0_25/src/VLF_Fill/Tyrion/test/savep1.root'
