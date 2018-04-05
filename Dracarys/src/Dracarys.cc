@@ -279,7 +279,7 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     }
 
 	     int Muon_size=muons->size();
-	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_) && (Muon_size==OurMuonDefinitionCounter)) flagMuonChooser=true;
+	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_)) flagMuonChooser=true;
  	     
  	     if ( flagMuonChooser ){
 	       Dracarys::LeadingMuPtM3++;
