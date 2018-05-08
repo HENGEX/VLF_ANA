@@ -105,79 +105,67 @@ Dracarys::~Dracarys()
 void
 Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
+  
+  
+  //Trigger
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAlone> triggerObjects;
+  edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+  
+  iEvent.getByToken(triggerBits_, triggerBits);
+  iEvent.getByToken(triggerObjects_, triggerObjects);
+  iEvent.getByToken(triggerPrescales_, triggerPrescales);
+  
+  //Vertex info
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(tok_vertex_, vertices);
+  
+  /*Handling Muons*/
+  edm::Handle<edm::View<pat::Muon> > muons;
+  iEvent.getByToken(tok_muons_, muons);
+  /*Handling Jets*/
+  edm::Handle<edm::View<pat::Jet> > jets;
+  iEvent.getByToken(tok_jets_,jets);
+  /*Handling MET*/   
+  edm::Handle<pat::METCollection> mets;
+  iEvent.getByToken(tok_met_,mets);
+  const pat::MET &met = mets->front();
+  
+  ////////////////////////////
+  
+  //Counting events
+  Dracarys::NoCuts++;
+  
+  //Cleaning all variables
+  Clean();
+  
+  bool flagIsTrigger=false;
+  bool flagIsTriggerToo=false;
+  
+  const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+  //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
+  
+  if( TriggerPath2_ == "" || !isTrigger_ ){
+    flagIsTriggerToo = true;
+  } else{
+    flagIsTriggerToo = false;
+  } 
+  
+  if( TriggerPath1_ == "" || !isTriggerToo_ ){
+    flagIsTrigger = true;
+  } else{
+    flagIsTrigger = false;
+  }
+  
+  if ( debug_ ){
+    //here we can see if the trigger was used
+    std::cout << " Looking for the Trigger : " << TriggerPath1_ << std::endl;
+    std::cout << " Or for the Trigger      : " << TriggerPath2_ << std::endl;
 
-
-   //Trigger
-   edm::Handle<edm::TriggerResults> triggerBits;
-   edm::Handle<pat::TriggerObjectStandAlone> triggerObjects;
-   edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-
-   iEvent.getByToken(triggerBits_, triggerBits);
-   iEvent.getByToken(triggerObjects_, triggerObjects);
-   iEvent.getByToken(triggerPrescales_, triggerPrescales);
-   
-   //Vertex info
-   edm::Handle<reco::VertexCollection> vertices;
-   iEvent.getByToken(tok_vertex_, vertices);
-
-   /*Handling Muons*/
-   edm::Handle<edm::View<pat::Muon> > muons;
-   iEvent.getByToken(tok_muons_, muons);
-   /*Handling Jets*/
-   edm::Handle<edm::View<pat::Jet> > jets;
-   iEvent.getByToken(tok_jets_,jets);
-   /*Handling MET*/   
-   edm::Handle<pat::METCollection> mets;
-   iEvent.getByToken(tok_met_,mets);
-   const pat::MET &met = mets->front();
-
-   ////////////////////////////
-
-   //Counting events
-   Dracarys::NoCuts++;
-
-   //Cleaning all variables
-   Clean();
-
-   //Tree Structure -> branches should be declared in decreasing size
-   /*   tree_->Branch("AnaMuons",&AnaMuons);
-   tree_->Branch("AnaJets",&AnaJets);
-   tree_->Branch("AnaMET",&MET);
-   tree_->Branch("combinedSecondaryVertexbJetDiscriminator",&bJetDiscriminator);
-   tree_->Branch("Combined_iso_DeltaBetaPU",&Combined_Iso);
-   tree_->Branch("Muon_charge",&Muon_charge);
-   tree_->Branch("MuonLooseID",&Muon_loose);
-   tree_->Branch("MuonMediumID",&Muon_medium);
-   tree_->Branch("MuonTightID",&Muon_tight);
-   tree_->Branch("MuonMultiplicity",&NMuons);
-   tree_->Branch("JetsMultiplicity",&NJets);
-   tree_->Branch("bJetsMultiplicity",&NbJets);
-   tree_->Branch("MT_LeadingMuon_MET",&MT_LeadingMuon_MET);
-   tree_->Branch("Vertices",&Nvertices);
-   tree_->Branch("InTimePU",&NObservedInTimePUVertices);
-   tree_->Branch("TruePU",&NTruePUInteractions);
-   */
-   
-   bool flagIsTrigger=false;
-   bool flagIsTriggerToo=false;
-	
-   const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
-   //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
-
-     if( TriggerPath2_ == "" || !isTrigger_ ){
-       flagIsTriggerToo = true;
-     } else{
-       flagIsTriggerToo = false;
-     } 
-
-     if( TriggerPath1_ == "" || !isTriggerToo_ ){
-       flagIsTrigger = true;
-     } else{
-       flagIsTrigger = false;
-     }
-	
-   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
+  }
+  
+  for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
     if (flagIsTrigger == true && flagIsTriggerToo == true) {break;}
     /*Cut the version of the trigger path*/
     std::string nameV = names.triggerName(i);
@@ -212,137 +200,138 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-     if( flagIsTrigger && flagIsTriggerToo ){
      
- 	 //Counting number of events which pass the triggers
-       Dracarys::TriggerPathCut++;
-
-	 //Requiring a good primery vertex
-	 bool flagGoodVertex = false;
-
-	 Nvertices=0;
-	 reco::VertexCollection::const_iterator firstGoodVertex = vertices->end();
-	 for(reco::VertexCollection::const_iterator vtxIt = vertices->begin(); vtxIt!= vertices->end(); ++vtxIt) {
-	   if((vtxIt->isValid()) && !(vtxIt->isFake())) {
-	     if(vtxIt->ndof() < Pvtx_ndof_min_) continue; 
-	     if(abs(vtxIt->z()) >= Pvtx_vtx_max_) continue;
-	     if(sqrt((vtxIt->x()*vtxIt->x()) + (vtxIt->y()*vtxIt->y())) >= Pvtx_vtxdxy_max_) continue; 
-	     flagGoodVertex=true;
-	     if (Nvertices==0) firstGoodVertex = vtxIt;
-	     Nvertices++;
-	   }
-	 }
-
-	 if (!flagGoodVertex) return;
-	 Dracarys::GoodVertex++;
-
-	 if(!is_data_) {
-	   Handle<std::vector< PileupSummaryInfo > > PUInfo;
-	   iEvent.getByToken(tok_pileup_, PUInfo); 
-	   
-	   std::vector<PileupSummaryInfo>::const_iterator PVI;
-	   NObservedInTimePUVertices = 0;
-	   NTruePUInteractions = 0;
-	   for(PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) { //loop over pileup info
-	     if(PVI->getBunchCrossing() == 0) { NObservedInTimePUVertices += PVI->getPU_NumInteractions(); } // number of observed in-time pileup interactions
-	     if(PVI->getBunchCrossing() == 0) { NTruePUInteractions = PVI->getTrueNumInteractions(); } // number of true in-time pileup interactions
-	   }
-	 } 
-	 ////////////////////////////////////////
-
-	 if( jets->size() > 0 ){
-	   Dracarys::aJetatLessCut++;
-	   if( muons->size() > 0 ){
-	     // loop muon collection and fill histograms
-	     /* at least one muon with Pt>3 GeV*/
-	     
-	     bool flagMuonChooser=false;
-	     int OurMuonDefinitionCounter=0;
-	     if (debug_) std::cout << "Muon counter loop" << std::endl;
-	     for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-	       double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
-	       if( (muon->pt() > MinMuonPt_) && (muon->pt() < MaxMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
-		 {
-		   if ( ((MuonID_==0) && (muon->isLooseMuon())) || ((MuonID_==1) && (muon->isMediumMuon())) ) OurMuonDefinitionCounter++;
-		   if (debug_) std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
-		 }
-	     }
-
-	     int Muon_size=muons->size();
-	     if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_)) flagMuonChooser=true;
- 	     
- 	     if ( flagMuonChooser ){
-	       Dracarys::LeadingMuPtM3++;
-	       //	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
-
-	       //TTree Filling
-	       NMuons=OurMuonDefinitionCounter;
-	       for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-		 XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
-		 if (debug_) std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
-		 AnaMuons.push_back(mu);
-		 Muon_charge.push_back(muon->charge());
-		 Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
-		 Muon_loose.push_back(muon->isLooseMuon()); 
-		 Muon_medium.push_back(muon->isMediumMuon()); 
-		 Muon_tight.push_back(muon->isTightMuon(*firstGoodVertex));
-	       }
-	       
-
-	       //MET selection
-	       if (met.pt() < MinMET_) return;
-	       Dracarys::MissingETCut++;
-	       MET = XYZTLorentzVector(met.px(), met.py(), met.pz(), met.energy());
-
-	       //Basic jets selection
-	       bool flagAtLeastOneGoodJet=false;
-	       NJets=0;
-	       NbJets=0;
-	       for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
-		 XYZTLorentzVector je(jet->px(), jet->py(), jet->pz(), jet->energy());
-		 if (debug_) std::cout <<"Jet Pt: " << je.Pt() <<std::endl;
-		 if( (jet->pt() > MinJetPt_) && (abs(jet->eta()) < MaxJetEta_) )
-		   {
-		     AnaJets.push_back(je);
-		     bJetDiscriminator.push_back(jet->bDiscriminator("combinedSecondaryVertexBJetTags"));
-		     NJets++;
-		   }
-		 if( (jet->pt() > MinbJetPt_) && (abs(jet->eta()) < MaxbJetEta_) && (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>bJetTag_) )
-                   {
-                     NbJets++;
-                   }
-	       }
-
-	       if ( (NJets >= MinNJets_) && (NJets <= MaxNJets_) ) flagAtLeastOneGoodJet=true;
-	       if (!flagAtLeastOneGoodJet) return;
-	       Dracarys::BasicJetsCut++;
-
-	       //bJets cut
-	       bool flagbJetCut=false;
-	       if ( (NbJets >= MinNbJets_) && (NbJets <= MaxNbJets_) ) flagbJetCut=true;
-	       if (!flagbJetCut) return;
-	       Dracarys::bJetsCut++;
-	       
-	       //Analysis only part
-	       TLorentzVector LeadingMuon, Met;
-	       LeadingMuon.SetPxPyPzE(AnaMuons[0].px(), AnaMuons[0].py(), AnaMuons[0].pz(), AnaMuons[0].energy());
-	       Met.SetPxPyPzE(MET.px(), MET.py(), MET.pz(), MET.energy());
-	       MT_LeadingMuon_MET = sqrt(2*LeadingMuon.Pt()*Met.Pt()*(1-cos(LeadingMuon.DeltaPhi(Met))));
-
-	       if ( (MT_LeadingMuon_MET < MinMTMuonMet_) || (MT_LeadingMuon_MET > MaxMTMuonMet_) ) return;
-	       MuonMetMTCut++;
-
-	       tree_->Fill();
-	       
-	     }
-	   }/*End cut at least one muon with Pt>3 GeV*/
-	 } /*End cut one jet at least */       
-     }    //else {
-         //std::cout << "At least one of the triggers wanted was not found in the event." << std::endl;
-        // }
+  if( flagIsTrigger && flagIsTriggerToo ){
+    
+    //Counting number of events which pass the triggers
+    Dracarys::TriggerPathCut++;
+    
+    //Requiring a good primery vertex
+    bool flagGoodVertex = false;
+    
+    Nvertices=0;
+    reco::VertexCollection::const_iterator firstGoodVertex = vertices->end();
+    for(reco::VertexCollection::const_iterator vtxIt = vertices->begin(); vtxIt!= vertices->end(); ++vtxIt) {
+      if((vtxIt->isValid()) && !(vtxIt->isFake())) {
+	if(vtxIt->ndof() < Pvtx_ndof_min_) continue; 
+	if(abs(vtxIt->z()) >= Pvtx_vtx_max_) continue;
+	if(sqrt((vtxIt->x()*vtxIt->x()) + (vtxIt->y()*vtxIt->y())) >= Pvtx_vtxdxy_max_) continue; 
+	flagGoodVertex=true;
+	if (Nvertices==0) firstGoodVertex = vtxIt;
+	Nvertices++;
+      }
+    }
+    
+    if (!flagGoodVertex) return;
+    Dracarys::GoodVertex++;
+    
+    if(!is_data_) {
+      Handle<std::vector< PileupSummaryInfo > > PUInfo;
+      iEvent.getByToken(tok_pileup_, PUInfo); 
+      
+      std::vector<PileupSummaryInfo>::const_iterator PVI;
+      NObservedInTimePUVertices = 0;
+      NTruePUInteractions = 0;
+      for(PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) { //loop over pileup info
+	if(PVI->getBunchCrossing() == 0) { NObservedInTimePUVertices += PVI->getPU_NumInteractions(); } // number of observed in-time pileup interactions
+	if(PVI->getBunchCrossing() == 0) { NTruePUInteractions = PVI->getTrueNumInteractions(); } // number of true in-time pileup interactions
+      }
+    } 
+    ////////////////////////////////////////
+    
+    if( jets->size() > 0 ){
+      Dracarys::aJetatLessCut++;
+      if( muons->size() > 0 ){
+	// loop muon collection and fill histograms
+	/* at least one muon with Pt>3 GeV*/
+	
+	bool flagMuonChooser=false;
+	int OurMuonDefinitionCounter=0;
+	if (debug_) std::cout << "Muon counter loop" << std::endl;
+	for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+	  double MuonIso = (muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt();
+	  if( (muon->pt() > MinMuonPt_) && (muon->pt() < MaxMuonPt_) && (MuonIso < MuonIso_) ) //&& (muon->isMediumMuon()) )
+	    {
+	      if ( ((MuonID_==0) && (muon->isLooseMuon())) || ((MuonID_==1) && (muon->isMediumMuon())) ) OurMuonDefinitionCounter++;
+	      if (debug_) std::cout << "Muon pt=" << muon->pt() << ", Muon Iso=" << MuonIso << ", Medium ID=" << muon->isMediumMuon() << ", Numer of muons counted=" << OurMuonDefinitionCounter << std::endl;
+	    }
+	}
+	
+	//int Muon_size=muons->size();
+	if ( (OurMuonDefinitionCounter>=MinNMuons_) && (OurMuonDefinitionCounter<=MaxNMuons_)) flagMuonChooser=true;
+ 	
+	if ( flagMuonChooser ){
+	  Dracarys::LeadingMuPtM3++;
+	  //	       std::cout <<"Number of muons: " << muons->size() <<std::endl;
+	  
+	  //TTree Filling
+	  NMuons=OurMuonDefinitionCounter;
+	  for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+	    XYZTLorentzVector mu(muon->px(), muon->py(), muon->pz(), muon->energy());
+	    if (debug_) std::cout << "Muon Pt from constructed lorentz vector: " << mu.pt() << ", Muon Pt from miniaod object: " << muon->pt() << std::endl;
+	    AnaMuons.push_back(mu);
+	    Muon_charge.push_back(muon->charge());
+	    Combined_Iso.push_back((muon->pfIsolationR04().sumChargedHadronPt + max(0., muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt - 0.5*muon->pfIsolationR04().sumPUPt))/muon->pt());
+	    Muon_loose.push_back(muon->isLooseMuon()); 
+	    Muon_medium.push_back(muon->isMediumMuon()); 
+	    Muon_tight.push_back(muon->isTightMuon(*firstGoodVertex));
+	  }
+	  
+	  
+	  //MET selection
+	  if (met.pt() < MinMET_) return;
+	  Dracarys::MissingETCut++;
+	  MET = XYZTLorentzVector(met.px(), met.py(), met.pz(), met.energy());
+	  
+	  //Basic jets selection
+	  bool flagAtLeastOneGoodJet=false;
+	  NJets=0;
+	  NbJets=0;
+	  for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+	    XYZTLorentzVector je(jet->px(), jet->py(), jet->pz(), jet->energy());
+	    if (debug_) std::cout <<"Jet Pt: " << je.Pt() <<std::endl;
+	    if( (jet->pt() > MinJetPt_) && (abs(jet->eta()) < MaxJetEta_) )
+	      {
+		AnaJets.push_back(je);
+		bJetDiscriminator.push_back(jet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+		NJets++;
+	      }
+	    if( (jet->pt() > MinbJetPt_) && (abs(jet->eta()) < MaxbJetEta_) && (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>bJetTag_) )
+	      {
+		NbJets++;
+	      }
+	  }
+	  
+	  if ( (NJets >= MinNJets_) && (NJets <= MaxNJets_) ) flagAtLeastOneGoodJet=true;
+	  if (!flagAtLeastOneGoodJet) return;
+	  Dracarys::BasicJetsCut++;
+	  
+	  //bJets cut
+	  bool flagbJetCut=false;
+	  if ( (NbJets >= MinNbJets_) && (NbJets <= MaxNbJets_) ) flagbJetCut=true;
+	  if (!flagbJetCut) return;
+	  Dracarys::bJetsCut++;
+	  
+	  //Analysis only part
+	  TLorentzVector LeadingMuon, Met;
+	  LeadingMuon.SetPxPyPzE(AnaMuons[0].px(), AnaMuons[0].py(), AnaMuons[0].pz(), AnaMuons[0].energy());
+	  Met.SetPxPyPzE(MET.px(), MET.py(), MET.pz(), MET.energy());
+	  MT_LeadingMuon_MET = sqrt(2*LeadingMuon.Pt()*Met.Pt()*(1-cos(LeadingMuon.DeltaPhi(Met))));
+	  
+	  if ( (MT_LeadingMuon_MET < MinMTMuonMet_) || (MT_LeadingMuon_MET > MaxMTMuonMet_) ) return;
+	  MuonMetMTCut++;
+	  
+	  tree_->Fill();
+	  
+	}
+      }/*End cut at least one muon with Pt>3 GeV*/
+    } /*End cut one jet at least */       
+  }    //else {
+  //std::cout << "At least one of the triggers wanted was not found in the event." << std::endl;
+  // }
 }      /*end of the  if for the triggers*/  
-     
-   
+
+
 
 void 
 Dracarys::Clean()
@@ -366,8 +355,7 @@ Dracarys::Clean()
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-Dracarys::beginJob()
+void Dracarys::beginJob()
 {
 
   Dracarys::NoCuts=0; 
@@ -406,8 +394,7 @@ Dracarys::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-Dracarys::endJob() 
+void Dracarys::endJob() 
 {
   std::cout<< "NoCuts= "<< NoCuts <<endl;
   std::cout<< "TriggerPathCut= "<< TriggerPathCut <<endl;
@@ -421,8 +408,7 @@ Dracarys::endJob()
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-Dracarys::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Dracarys::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we don't know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
