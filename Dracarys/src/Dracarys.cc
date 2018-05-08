@@ -159,23 +159,26 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_->Branch("TruePU",&NTruePUInteractions);
    */
    
+   bool flagIsTrigger=false;
+   bool flagIsTriggerToo=false;
+	
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
    //   std::cout << "\n == TRIGGER PATHS= " << std::endl;
 
-     if( TriggerPath2_ == "" ){
-       isTriggerToo_ = true;
+     if( TriggerPath2_ == "" || !isTrigger_ ){
+       flagIsTriggerToo = true;
      } else{
-       isTriggerToo_ = false;
+       flagIsTriggerToo = false;
      } 
 
-     if( TriggerPath1_ == "" ){
-       isTrigger_ = true;
+     if( TriggerPath1_ == "" || !isTriggerToo_ ){
+       flagIsTrigger = true;
      } else{
-       isTrigger_ = false;
+       flagIsTrigger = false;
      }
-
+	
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
-
+     if (flagIsTrigger == true && flagIsTriggerToo == true) {break;}
      /*Cut the version of the trigger path*/
      std::string nameV = names.triggerName(i);
      std::string version ="_v";
@@ -188,17 +191,25 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //std::cout << "Trigger under consideration " <<  TriggerNameVersionOff << " Looking for " << TriggerPath1_ << " isTrigger_ is " << isTrigger_ << std::endl;
     /*End cut of version number in the path name of the triggers*/
 
+     if( !flagIsTrigger && isTrigger_ ){
      if(TriggerNameVersionOff ==  TriggerPath1_){
        if(triggerBits->accept(i)){
-       isTrigger_ = true;
+       flagIsTrigger = true;
        }
+     }
+     if( !flagIsTriggerToo && isTriggerToo_ ){
+     if(TriggerNameVersionOff ==  TriggerPath2_){
+       if(triggerBits->accept(k)){
+       flagIsTriggerToo = true;
+       }
+     }
        //std::cout << "Found it! triggerwanted " <<  TriggerNameVersionOff << " and we get " << TriggerPath1_ << " Now isTrigger_ goes to " << isTrigger_ << std::endl;
-       break;
+       //break;
      }
    }
 
 
-   for (unsigned int k = 0, n = triggerBits->size(); k < n; ++k){
+   /*for (unsigned int k = 0, n = triggerBits->size(); k < n; ++k){
 
      /*Cut the version of the trigger path*/
      std::string nameVer = names.triggerName(k);
@@ -214,15 +225,15 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      if(OtherTriggerNameVersionOff ==  TriggerPath2_){
        if(triggerBits->accept(k)){
-       isTriggerToo_ = true;
+       flagIsTriggerToo = true;
        }
        //std::cout << "Found it too! other trigger " <<  OtherTriggerNameVersionOff << " and we get " << TriggerPath2_ << " isTriggerToo_ goes to " << isTriggerToo_ << std::endl;
        break;
      }
-   }
+   }*/
 
 
-     if((isTrigger_ == true)&&(isTriggerToo_ == true)){
+     if( flagIsTrigger && flagIsTriggerToo ){
      
  	 //Counting number of events which pass the triggers
        Dracarys::TriggerPathCut++;
