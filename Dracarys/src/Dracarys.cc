@@ -178,60 +178,39 @@ Dracarys::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 	
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
-     if (flagIsTrigger == true && flagIsTriggerToo == true) {break;}
-     /*Cut the version of the trigger path*/
-     std::string nameV = names.triggerName(i);
-     std::string version ="_v";
-     size_t start_pos = nameV.rfind(version);
-     std::string TriggerNameVersionOff;
-     if (start_pos != std::string::npos){
-       TriggerNameVersionOff= nameV.erase(start_pos, version.length()+4);
-     }
-     //here we can see if the trigger was used
-     //std::cout << "Trigger under consideration " <<  TriggerNameVersionOff << " Looking for " << TriggerPath1_ << " isTrigger_ is " << isTrigger_ << std::endl;
-    /*End cut of version number in the path name of the triggers*/
-
-     if( !flagIsTrigger && isTrigger_ ){
-     if(TriggerNameVersionOff ==  TriggerPath1_){
-       if(triggerBits->accept(i)){
-       flagIsTrigger = true;
-       }
-     }
-     if( !flagIsTriggerToo && isTriggerToo_ ){
-     if(TriggerNameVersionOff ==  TriggerPath2_){
-       if(triggerBits->accept(k)){
-       flagIsTriggerToo = true;
-       }
-     }
-       //std::cout << "Found it! triggerwanted " <<  TriggerNameVersionOff << " and we get " << TriggerPath1_ << " Now isTrigger_ goes to " << isTrigger_ << std::endl;
-       //break;
-     }
-   }
-
-
-   /*for (unsigned int k = 0, n = triggerBits->size(); k < n; ++k){
-
-     /*Cut the version of the trigger path*/
-     std::string nameVer = names.triggerName(k);
-     std::string aVersion ="_v";
-     size_t start_posi = nameVer.rfind(aVersion);
-     std::string OtherTriggerNameVersionOff;
-     if (start_posi != std::string::npos){
-       OtherTriggerNameVersionOff = nameVer.erase(start_posi, aVersion.length()+4); //see how this works
-     }
-     //here
-     //std::cout << "Other Trigger is " <<  OtherTriggerNameVersionOff << " Looking for " << TriggerPath2_ << " we have isTriggerToo_ in " << isTriggerToo_ << std::endl;
-    /*End cut of version number in the path name of the triggers*/
-
-     if(OtherTriggerNameVersionOff ==  TriggerPath2_){
-       if(triggerBits->accept(k)){
-       flagIsTriggerToo = true;
-       }
-       //std::cout << "Found it too! other trigger " <<  OtherTriggerNameVersionOff << " and we get " << TriggerPath2_ << " isTriggerToo_ goes to " << isTriggerToo_ << std::endl;
-       break;
-     }
-   }*/
-
+    if (flagIsTrigger == true && flagIsTriggerToo == true) {break;}
+    /*Cut the version of the trigger path*/
+    std::string nameV = names.triggerName(i);
+    std::string version ="_v";
+    size_t start_pos = nameV.rfind(version);
+    std::string TriggerNameVersionOff;
+    if (start_pos != std::string::npos){
+      TriggerNameVersionOff= nameV.erase(start_pos, version.length()+4);
+    }
+    
+    if ( debug_ ){
+      std::cout << "Trigger " << i << TriggerNameVersionOff << std::endl;
+    }
+    
+    if( !flagIsTrigger && isTrigger_ ){
+       if ( debug_ )  std::cout << "Evaluating TriggerPath 1" << std::endl;
+      if(TriggerNameVersionOff ==  TriggerPath1_){
+	if(triggerBits->accept(i)){
+	  flagIsTrigger = true;
+	  if ( debug_ )  std::cout << "TriggerPath 1 PASS" << std::endl;
+	}
+      }
+    }
+    if( !flagIsTriggerToo && isTriggerToo_ ){
+      if ( debug_ )  std::cout << "Evaluating TriggerPath 2" << std::endl;
+      if(TriggerNameVersionOff ==  TriggerPath2_){
+	if(triggerBits->accept(i)){
+	  flagIsTriggerToo = true;
+	  if ( debug_ )  std::cout << "TriggerPath 2 PASS" << std::endl;
+	}
+      }
+    }
+  }
 
      if( flagIsTrigger && flagIsTriggerToo ){
      
